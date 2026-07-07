@@ -1,0 +1,541 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Material Symbols icon font (loaded on the visitor screen) */
+.material-symbols-outlined {
+  font-family: "Material Symbols Outlined";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+}
+.material-symbols-outlined.filled-icon {
+  font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24;
+}
+
+/* Soft card shadow from the CoWork Hub design system */
+.ambient-shadow {
+  box-shadow: 0px 4px 20px rgba(15, 23, 42, 0.05);
+}
+
+/* Preflight is off, so <p> keeps the browser's 1em margins — tighten
+   them project-wide. */
+p {
+  margin: 0.25em 0;
+}
+
+:root {
+  --bg: #0f172a;
+  --card: #1e293b;
+  --card-2: #334155;
+  --text: #f1f5f9;
+  --muted: #94a3b8;
+  --free: #22c55e;
+  --booked: #ef4444;
+  --accent: #6366f1;
+  --border: #334155;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.wrap {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 20px 16px 48px;
+}
+
+header.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+header.top h1 {
+  font-size: 20px;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.sub {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+.link {
+  color: var(--muted);
+  font-size: 13px;
+  border: 1px solid var(--border);
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+
+/* Alert banner */
+.banner {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 20px;
+}
+.banner h3 {
+  margin: 0 0 4px;
+  font-size: 16px;
+}
+.banner p {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+}
+.banner.ok {
+  background: linear-gradient(135deg, #16a34a, #15803d);
+}
+
+/* Room cards */
+.rooms {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+@media (max-width: 460px) {
+  .rooms {
+    grid-template-columns: 1fr;
+  }
+}
+
+.room {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px;
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+}
+.room .name {
+  font-size: 13px;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.pill {
+  align-self: flex-start;
+  margin: 10px 0;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 999px;
+}
+.pill.free {
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--free);
+}
+.pill.booked {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--booked);
+}
+.pill.upcoming {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+}
+.room .ev-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-top: auto;
+}
+.room .ev-time {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.room .ev-desc {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+.room .empty {
+  margin-top: auto;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* Buttons + forms */
+button {
+  font: inherit;
+  cursor: pointer;
+  border: none;
+  border-radius: 10px;
+  padding: 11px 16px;
+  font-weight: 600;
+  background: #fff;
+  color: #111;
+  transition: opacity 0.15s;
+}
+button:hover {
+  opacity: 0.9;
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+button.ghost {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+button.danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+}
+button.full {
+  width: 100%;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.card h2 {
+  margin: 0 0 16px;
+  font-size: 16px;
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  color: var(--muted);
+  margin: 12px 0 6px;
+}
+input,
+textarea,
+select {
+  width: 100%;
+  font: inherit;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 11px 12px;
+}
+textarea {
+  resize: vertical;
+  min-height: 64px;
+}
+.row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.msg {
+  font-size: 13px;
+  margin-top: 12px;
+}
+.msg.err {
+  color: #fca5a5;
+}
+.msg.ok {
+  color: #86efac;
+}
+
+.admin-event {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+}
+.admin-event:first-of-type {
+  border-top: none;
+}
+.admin-event .meta {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* Role chooser */
+.choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 8px;
+}
+@media (max-width: 520px) {
+  .choices {
+    grid-template-columns: 1fr;
+  }
+}
+.choice {
+  display: block;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 28px 22px;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.choice:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+.choice.admin:hover {
+  border-color: #7c3aed;
+}
+.choice-icon {
+  font-size: 40px;
+  line-height: 1;
+  margin-bottom: 14px;
+}
+.choice-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.choice-desc {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* Black & yellow visitor list */
+.yb-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+@media (max-width: 460px) {
+  .yb-list {
+    grid-template-columns: 1fr;
+  }
+}
+.yb-card {
+  position: relative;
+  overflow: hidden;
+  background: #0a0a0a;
+  border: 1px solid rgba(250, 204, 21, 0.28);
+  border-radius: 18px;
+  padding: 20px;
+  min-height: 160px;
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+.yb-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #facc15, #f59e0b);
+}
+.yb-card:hover {
+  transform: translateY(-2px);
+  border-color: #facc15;
+  box-shadow: 0 8px 30px rgba(250, 204, 21, 0.12);
+}
+.yb-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.yb-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #facc15;
+  color: #0a0a0a;
+  font-size: 20px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.yb-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #e5e5e5;
+}
+.yb-status .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.yb-status.free .dot {
+  background: #22c55e;
+}
+.yb-status.upcoming .dot {
+  background: #f59e0b;
+}
+.yb-status.booked .dot {
+  background: #ef4444;
+}
+.yb-name {
+  margin-top: 14px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fde047;
+  letter-spacing: -0.01em;
+}
+.yb-body {
+  margin-top: 10px;
+}
+.yb-body .t {
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+}
+.yb-body .m {
+  font-size: 13px;
+  color: #a3a3a3;
+  margin-top: 4px;
+}
+.yb-body .free-now {
+  font-size: 14px;
+  font-weight: 600;
+  color: #facc15;
+}
+
+/* Visitor check-in gate */
+.gate {
+  background: #0a0a0a;
+  border: 1px solid rgba(250, 204, 21, 0.28);
+  border-radius: 18px;
+  padding: 24px;
+}
+.gate h2 {
+  margin: 0 0 6px;
+  color: #fde047;
+  font-size: 18px;
+}
+.gate-p {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.gate-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+.yb-btn {
+  background: #facc15;
+  color: #0a0a0a;
+}
+.yb-btn:hover {
+  background: #fde047;
+  opacity: 1;
+}
+
+/* List/Map toggle */
+.toggle {
+  display: inline-flex;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px;
+  margin-bottom: 16px;
+}
+.seg {
+  background: transparent;
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 7px 20px;
+  font-size: 14px;
+}
+.seg.on {
+  background: #facc15;
+  color: #0a0a0a;
+}
+.seg:hover {
+  opacity: 1;
+}
+
+/* Floor plan (light blueprint card, even in dark theme) */
+.plan {
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 10px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+}
+
+/* Floor map legend */
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.legend .dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.legend .dot.free {
+  background: #22c55e;
+}
+.legend .dot.booked {
+  background: #ef4444;
+}
+.legend .dot.upcoming {
+  background: #f59e0b;
+}
+.legend .hint {
+  margin-left: auto;
+  font-size: 12px;
+}
+
+/* Selected room detail under the map */
+.map-detail {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  margin-top: 14px;
+}
+.map-detail-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
