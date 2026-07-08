@@ -26,9 +26,28 @@ const ROLES = [
 export default function Home() {
   const router = useRouter();
   const [selected, setSelected] = useState("visitor"); // visitor selected by default
+  const [shared, setShared] = useState(false);
 
   function pick(key) {
     setSelected(key);
+  }
+
+  async function shareApp() {
+    const url = window.location.origin;
+    const data = { title: "Coworking Rooms", text: "Live study-room availability", url };
+    try {
+      if (navigator.share) {
+        await navigator.share(data);
+        return;
+      }
+    } catch (e) {
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      setShared(true);
+      setTimeout(() => setShared(false), 1800);
+    } catch (e) {}
   }
 
   function next() {
@@ -56,8 +75,6 @@ export default function Home() {
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet"
       />
-
-      <InstallButton side="left" />
 
       <main className="flex-grow p-5 flex flex-col max-w-md mx-auto w-full">
         <section className="mt-6 mb-6 text-center">
@@ -118,15 +135,27 @@ export default function Home() {
           </button>
         </div>
 
-        {/* Downloadable product guide */}
-        <a
-          href="/coworking-rooms-guide.pdf"
-          download
-          className="mt-auto mb-6 mx-auto flex items-center gap-2 text-sm font-semibold text-secondary border-2 border-solid border-secondary rounded-full px-6 py-3 hover:bg-secondary hover:text-on-secondary active:scale-95 transition-all"
-        >
-          <span className="material-symbols-outlined !text-[18px]">download</span>
-          Download the guide
-        </a>
+        {/* Install / Download guide / Share — one row */}
+        <div className="mt-auto mb-6 flex flex-wrap items-center justify-center gap-2">
+          <InstallButton inline />
+          <a
+            href="/coworking-rooms-guide.pdf"
+            download
+            className="flex items-center gap-1.5 text-sm font-semibold text-secondary border-2 border-solid border-secondary rounded-full px-4 py-2.5 hover:bg-secondary hover:text-on-secondary active:scale-95 transition-all"
+          >
+            <span className="material-symbols-outlined !text-[18px]">download</span>
+            Download guide
+          </a>
+          <button
+            onClick={shareApp}
+            className="flex items-center gap-1.5 text-sm font-semibold text-secondary border-2 border-solid border-secondary rounded-full px-4 py-2.5 hover:bg-secondary hover:text-on-secondary active:scale-95 transition-all"
+          >
+            <span className="material-symbols-outlined !text-[18px]">
+              {shared ? "check" : "share"}
+            </span>
+            {shared ? "Link copied" : "Share app"}
+          </button>
+        </div>
       </main>
     </div>
   );

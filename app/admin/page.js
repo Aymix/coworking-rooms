@@ -256,10 +256,9 @@ function Dashboard({ onLogout }) {
             <button
               key={n.key}
               onClick={() => setTab(n.key)}
-              className={`flex flex-col items-center justify-center px-4 py-1 rounded-full active:scale-90 transition-colors ${
-                active
-                  ? "bg-secondary-container text-on-secondary-container"
-                  : "text-on-surface-variant hover:text-primary"
+              style={{ padding: "5px", background: "none" }}
+              className={`flex flex-col items-center justify-center active:scale-90 transition-colors ${
+                active ? "text-on-secondary-container" : "text-on-surface-variant hover:text-primary"
               }`}
             >
               <Icon name={n.icon} filled={active} />
