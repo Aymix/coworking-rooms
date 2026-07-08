@@ -335,8 +335,11 @@ function ScheduleForm({ rooms, onDone }) {
       </div>
 
       <form className="flex flex-col gap-6" onSubmit={submit}>
-        {/* Action card — scrolls with the form */}
-        <div className="bg-surface-container-lowest rounded-2xl ambient-shadow p-4 flex items-center justify-between gap-4">
+        {/* Action card — fixed near the top */}
+        <div
+          className="bg-surface-container-lowest rounded-2xl ambient-shadow p-4 flex items-center justify-between gap-4"
+          style={{ position: "fixed", zIndex: 9999, top: "100px" }}
+        >
           <p className="text-sm text-on-surface-variant hidden sm:block">
             {valid ? "Ready to publish — everyone gets notified." : "Fill in room, title, date and times to publish."}
           </p>
