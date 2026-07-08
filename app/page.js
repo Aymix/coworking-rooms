@@ -76,6 +76,30 @@ export default function Home() {
         rel="stylesheet"
       />
 
+      {/* Top navbar — Install / Download guide / Share */}
+      <header className="sticky top-0 z-20 bg-surface-container-lowest border-b border-solid border-outline-variant/60">
+        <div className="max-w-md mx-auto px-4 py-2.5 flex items-center justify-end gap-1">
+          <InstallButton nav />
+          <a
+            href="/coworking-rooms-guide.pdf"
+            download
+            aria-label="Download guide"
+            title="Download guide"
+            className="text-on-surface-variant hover:bg-surface-container-low rounded-full p-2 active:scale-95 transition-colors"
+          >
+            <span className="material-symbols-outlined !text-[18px]">download</span>
+          </a>
+          <button
+            onClick={shareApp}
+            aria-label={shared ? "Link copied" : "Share app"}
+            title={shared ? "Link copied" : "Share app"}
+            className="text-on-surface-variant hover:bg-surface-container-low rounded-full p-2 active:scale-95 transition-colors"
+          >
+            <span className="material-symbols-outlined !text-[18px]">{shared ? "check" : "share"}</span>
+          </button>
+        </div>
+      </header>
+
       <main className="flex-grow p-5 flex flex-col max-w-md mx-auto w-full">
         <section className="mt-6 mb-6 text-center">
           <h2 className="text-[26px] leading-8 font-bold text-on-surface mb-2 tracking-tight">
@@ -135,27 +159,6 @@ export default function Home() {
           </button>
         </div>
 
-        {/* Install / Download guide / Share — one row */}
-        <div className="mt-auto mb-6 flex flex-wrap items-center justify-center gap-2">
-          <InstallButton inline />
-          <a
-            href="/coworking-rooms-guide.pdf"
-            download
-            className="flex items-center gap-1.5 text-sm font-semibold text-secondary border-2 border-solid border-secondary rounded-full px-4 py-2.5 hover:bg-secondary hover:text-on-secondary active:scale-95 transition-all"
-          >
-            <span className="material-symbols-outlined !text-[18px]">download</span>
-            Download guide
-          </a>
-          <button
-            onClick={shareApp}
-            className="flex items-center gap-1.5 text-sm font-semibold text-secondary border-2 border-solid border-secondary rounded-full px-4 py-2.5 hover:bg-secondary hover:text-on-secondary active:scale-95 transition-all"
-          >
-            <span className="material-symbols-outlined !text-[18px]">
-              {shared ? "check" : "share"}
-            </span>
-            {shared ? "Link copied" : "Share app"}
-          </button>
-        </div>
       </main>
     </div>
   );

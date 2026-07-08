@@ -7,7 +7,7 @@ import { registerSW } from "@/lib/pushClient";
 // Floating "Install app" pill — shown on every screen.
 // Chrome/Android use the native beforeinstallprompt; iOS Safari has no such
 // API, so we detect iOS and show Add-to-Home-Screen instructions instead.
-export default function InstallButton({ side = "right", inline = false }) {
+export default function InstallButton({ side = "right", inline = false, nav = false }) {
   const [avail, setAvail] = useState(false); // native prompt captured
   const [ios, setIos] = useState(false); // iOS Safari, not yet installed
   const [showIos, setShowIos] = useState(false);
@@ -38,17 +38,19 @@ export default function InstallButton({ side = "right", inline = false }) {
     else setShowIos(true);
   }
 
-  const cls = inline
+  const cls = nav
+    ? "text-on-surface-variant hover:bg-surface-container-low rounded-full p-2 active:scale-95 transition-colors"
+    : inline
     ? "flex items-center gap-1.5 text-sm font-semibold text-secondary border-2 border-solid border-secondary rounded-full px-4 py-2.5 hover:bg-secondary hover:text-on-secondary active:scale-95 transition-all"
     : `fixed z-[55] bottom-20 md:bottom-6 ${pos} flex items-center gap-1.5 text-sm font-semibold bg-primary text-on-primary rounded-full pl-3 pr-4 py-2.5 shadow-lg hover:opacity-90 active:scale-95 transition-all`;
 
   return (
     <>
-      <button onClick={onClick} className={cls}>
+      <button onClick={onClick} aria-label="Install app" title="Install app" className={cls}>
         <span className="material-symbols-outlined !text-[18px]">
           {ios ? "ios_share" : "install_mobile"}
         </span>
-        Install app
+        {!nav && "Install app"}
       </button>
 
       {showIos && (
