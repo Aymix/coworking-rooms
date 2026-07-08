@@ -22,23 +22,26 @@ const LANG_KEY = "cw_lang";
 const I18nCtx = createContext({ lang: "en", setLang: () => {}, t: (k) => k });
 const useI18n = () => useContext(I18nCtx);
 
+const FLAG = { en: "🇬🇧", fr: "🇫🇷" };
+
 function LangSwitch({ className = "" }) {
   const { lang, setLang } = useI18n();
   return (
     <div
-      className={`inline-flex items-stretch h-10 rounded-full border border-solid border-outline-variant overflow-hidden text-xs font-semibold ${className}`}
+      className={`inline-flex items-stretch h-10 rounded-lg border border-solid border-outline-variant overflow-hidden text-xs font-semibold ${className}`}
     >
       {["en", "fr"].map((l) => (
         <button
           key={l}
           type="button"
           onClick={() => setLang(l)}
-          className={`px-3 flex items-center uppercase transition-colors ${
+          className={`px-2.5 flex items-center gap-1 uppercase transition-colors ${
             lang === l
               ? "bg-secondary-container text-on-secondary-container"
               : "text-on-surface-variant"
           }`}
         >
+          <span className="text-sm leading-none">{FLAG[l]}</span>
           {l}
         </button>
       ))}
@@ -300,7 +303,7 @@ function Board() {
       {/* Top bar (mobile) */}
       <header className="w-full top-0 sticky bg-surface border-b border-solid border-outline-variant md:hidden z-40">
         <div className="flex justify-between items-center px-4 py-4 w-full">
-          <a href="/" className="text-on-surface-variant p-2 active:scale-95">
+          <a href="/" className="text-on-surface-variant p-2 rounded-lg active:scale-95">
             <Icon name="arrow_back" />
           </a>
           <h1 className="text-lg font-bold text-primary">{t("appTitle")}</h1>
@@ -308,7 +311,7 @@ function Board() {
             <LangSwitch />
             <button
               onClick={() => setView("alerts")}
-              className="text-on-surface-variant p-2 active:scale-95"
+              className="text-on-surface-variant p-2 rounded-lg active:scale-95"
             >
               <Icon name="notifications" filled={permission === "granted"} />
             </button>
