@@ -334,37 +334,39 @@ function ScheduleForm({ rooms, onDone }) {
         </p>
       </div>
 
-      <form className="flex flex-col gap-6" onSubmit={submit}>
-        {/* Action card — fixed near the top */}
-        <div
-          className="bg-surface-container-lowest rounded-2xl ambient-shadow p-4 flex items-center justify-between gap-4"
-          style={{ position: "fixed", zIndex: 9999, top: "100px" }}
-        >
-          <p className="text-sm text-on-surface-variant hidden sm:block">
-            {valid ? "Ready to publish — everyone gets notified." : "Fill in room, title, date and times to publish."}
-          </p>
-          <div className="flex items-center gap-3 ml-auto">
-            <button
-              type="button"
-              onClick={() => {
-                setTitle("");
-                setDescription("");
-                setRoom("");
-              }}
-              className="text-xs font-semibold tracking-wider uppercase px-6 py-3 rounded-xl text-outline hover:text-primary transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={!valid || busy}
-              className="text-xs font-semibold tracking-wider uppercase px-8 py-3 rounded-xl bg-primary text-on-primary hover:bg-opacity-90 transition-all active:scale-95 shadow-md flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100"
-            >
-              <Icon name="publish" size={18} />
-              {busy ? "Publishing…" : "Publish Event"}
-            </button>
-          </div>
+      {/* Action card — fixed near the top, at the same level as the header */}
+      <div
+        className="bg-surface-container-lowest rounded-2xl ambient-shadow p-4 flex items-center justify-between gap-4"
+        style={{ position: "fixed", zIndex: 9999, top: "90px" }}
+      >
+        <p className="text-sm text-on-surface-variant hidden sm:block">
+          {valid ? "Ready to publish — everyone gets notified." : "Fill in room, title, date and times to publish."}
+        </p>
+        <div className="flex items-center gap-3 ml-auto">
+          <button
+            type="button"
+            onClick={() => {
+              setTitle("");
+              setDescription("");
+              setRoom("");
+            }}
+            className="text-xs font-semibold tracking-wider uppercase px-6 py-3 rounded-xl text-outline hover:text-primary transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            form="schedule-form"
+            disabled={!valid || busy}
+            className="text-xs font-semibold tracking-wider uppercase px-8 py-3 rounded-xl bg-primary text-on-primary hover:bg-opacity-90 transition-all active:scale-95 shadow-md flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100"
+          >
+            <Icon name="publish" size={18} />
+            {busy ? "Publishing…" : "Publish Event"}
+          </button>
         </div>
+      </div>
+
+      <form id="schedule-form" className="flex flex-col gap-6" onSubmit={submit}>
         {/* Main details card */}
         <div className="bg-surface-container-lowest rounded-2xl ambient-shadow p-6 flex flex-col gap-6">
           <div>
