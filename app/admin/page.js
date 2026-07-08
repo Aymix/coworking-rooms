@@ -336,7 +336,7 @@ function ScheduleForm({ rooms, onDone }) {
 
       {/* Action card — fixed near the top, at the same level as the header */}
       <div
-        className="bg-surface-container-lowest rounded-2xl ambient-shadow p-4 flex items-center justify-between gap-4"
+        className="bg-surface-container-lowest ambient-shadow p-4 flex items-center justify-between gap-4"
         style={{ position: "fixed", zIndex: 9999, top: "90px" }}
       >
         <p className="text-sm text-on-surface-variant hidden sm:block">
