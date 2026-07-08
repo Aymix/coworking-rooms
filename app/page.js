@@ -41,14 +41,15 @@ export default function Home() {
     if (!selected) return;
     if (selected === "admin") {
       router.push("/admin");
-    } else {
-      if (selected === "guest") {
-        try {
-          localStorage.setItem(PASS_KEY, "1");
-        } catch (e) {}
-      }
-      router.push("/visitor");
+      return;
     }
+    try {
+      // Guest skips the check-in; Visitor always sees the check-in page
+      // (clear any skip flag left over from a previous Guest session).
+      if (selected === "guest") localStorage.setItem(PASS_KEY, "1");
+      else localStorage.removeItem(PASS_KEY);
+    } catch (e) {}
+    router.push("/visitor");
   }
 
   return (
