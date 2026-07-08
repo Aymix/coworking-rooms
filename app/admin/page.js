@@ -130,15 +130,12 @@ const NAV = [
 function Dashboard({ onLogout }) {
   const [tab, setTab] = useState("schedule");
   const [rooms, setRooms] = useState([]);
-  const [visitors, setVisitors] = useState([]);
   const [msg, setMsg] = useState(null);
 
   const load = useCallback(async () => {
     try {
       const res = await fetch("/api/rooms", { cache: "no-store" });
       setRooms((await res.json()).rooms || []);
-      const vr = await fetch("/api/visitors", { cache: "no-store" });
-      if (vr.ok) setVisitors((await vr.json()).visitors || []);
     } catch (e) {}
   }, []);
 
@@ -244,7 +241,7 @@ function Dashboard({ onLogout }) {
 
           {tab === "schedule" && <ScheduleForm rooms={rooms} onDone={(m) => { setMsg(m); load(); }} />}
           {tab === "bookings" && <Bookings rooms={rooms} onEnd={endEvent} />}
-          {tab === "visitors" && <Visitors visitors={visitors} />}
+          {tab === "visitors" && <Visitors />}
         </div>
       </main>
 
@@ -525,10 +522,35 @@ function dayKey(d) {
   return `${x.getFullYear()}-${p(x.getMonth() + 1)}-${p(x.getDate())}`;
 }
 
-function Visitors({ visitors }) {
-  const [date, setDate] = useState(""); // "" = all days
+function Visitors() {
+  const [date, setDate] = useState(() => dayKey(new Date())); // default: today
+  const [list, setList] = useState(null);
+  const [slot, setSlot] = useState(null);
 
-  const filtered = date ? visitors.filter((v) => dayKey(v.at) === date) : visitors;
+  useEffect(() => {
+    setSlot(document.getElementById("admin-action-slot"));
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    setList(null);
+    let url = "/api/visitors";
+    if (date) {
+      const start = new Date(date + "T00:00");
+      const end = new Date(start);
+      end.setDate(end.getDate() + 1);
+      url += `?from=${start.toISOString()}&to=${end.toISOString()}`;
+    }
+    fetch(url, { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d) => active && setList(d.visitors || []))
+      .catch(() => active && setList([]));
+    return () => {
+      active = false;
+    };
+  }, [date]);
+
+  const filtered = list || [];
   const isToday = date === dayKey(new Date());
 
   const chip = (active) =>
@@ -541,34 +563,43 @@ function Visitors({ visitors }) {
   return (
     <>
       <div className="mb-6">
-        <h2 className="text-2xl md:text-3xl font-bold text-primary mb-2 tracking-tight">Visitors</h2>
+        <h2 className="text-2xl md:text-3xl font-bold text-primary mb-2 tracking-tight mt-[100px]">Visitors</h2>
         <p className="text-base text-on-surface-variant">
           People who checked in on the visitor screen.
         </p>
       </div>
 
-      {/* Calendar filter */}
-      <div className="mb-6 bg-surface-container-lowest rounded-2xl ambient-shadow p-4 flex flex-wrap items-center gap-3">
-        <Icon name="calendar_month" className="text-secondary" />
-        <input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          className="bg-surface-container-lowest border border-solid border-outline-variant rounded-xl px-3 py-2 text-sm text-primary outline-none focus:border-secondary"
-        />
-        <button onClick={() => setDate(dayKey(new Date()))} className={chip(isToday)}>
-          Today
-        </button>
-        <button onClick={() => setDate("")} className={chip(!date)}>
-          All days
-        </button>
-        <span className="ml-auto text-sm font-medium text-on-surface-variant">
-          {filtered.length} {filtered.length === 1 ? "check-in" : "check-ins"}
-          {date ? ` on ${new Date(date + "T00:00").toLocaleDateString([], { month: "short", day: "numeric" })}` : ""}
-        </span>
-      </div>
+      {/* Calendar filter — fixed under the top navbar, like the Schedule action card */}
+      {slot &&
+        createPortal(
+          <div
+            className="bg-surface-container-lowest ambient-shadow p-4 flex items-center gap-3"
+            style={{ position: "fixed", zIndex: 9999, top: "90px" }}
+          >
+            <Icon name="calendar_month" className="text-secondary" />
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="bg-surface-container-lowest border border-solid border-outline-variant rounded-xl px-3 py-2 text-sm text-primary outline-none focus:border-secondary"
+            />
+            <button onClick={() => setDate(dayKey(new Date()))} className={chip(isToday)}>
+              Today
+            </button>
+            <button onClick={() => setDate("")} className={chip(!date)}>
+              All
+            </button>
+            <span className="hidden sm:block ml-auto text-sm font-medium text-on-surface-variant">
+              {list === null ? "…" : filtered.length} {filtered.length === 1 ? "check-in" : "check-ins"}
+              {date ? ` on ${new Date(date + "T00:00").toLocaleDateString([], { month: "short", day: "numeric" })}` : ""}
+            </span>
+          </div>,
+          slot
+        )}
 
-      {filtered.length === 0 ? (
+      {list === null ? (
+        <p className="text-sm text-on-surface-variant py-8 text-center">Loading…</p>
+      ) : filtered.length === 0 ? (
         <div className="bg-surface-container-lowest rounded-2xl ambient-shadow p-8 text-center text-on-surface-variant">
           <Icon name="event_busy" size={40} className="text-secondary mb-2" />
           <p>{date ? "No check-ins on this day." : "No one has checked in yet."}</p>
