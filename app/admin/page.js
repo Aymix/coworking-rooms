@@ -67,7 +67,14 @@ function Login({ onLogin }) {
     "w-full bg-surface-container-lowest border border-solid border-outline-variant rounded-xl px-4 py-3 text-base text-primary focus:border-secondary focus:ring-1 focus:ring-secondary transition-colors outline-none placeholder:text-outline";
 
   return (
-    <div className="min-h-screen bg-background text-on-surface font-sans flex items-center justify-center px-5">
+    <div className="relative min-h-screen bg-background text-on-surface font-sans flex items-center justify-center px-5">
+      <a
+        href="/"
+        aria-label="Back"
+        className="absolute top-4 left-4 text-on-surface-variant hover:bg-surface-container-low rounded-full p-2 active:scale-95 transition-colors"
+      >
+        <Icon name="arrow_back" />
+      </a>
       <form
         onSubmit={submit}
         className="w-full max-w-md bg-surface-container-lowest rounded-2xl ambient-shadow p-8"

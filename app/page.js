@@ -112,7 +112,7 @@ export default function Home() {
         </div>
 
         {/* Next */}
-        <div className="mt-auto pb-4 flex justify-end">
+        <div className="pb-4 flex justify-end">
           <button
             onClick={next}
             disabled={!selected}
