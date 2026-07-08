@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { createPortal } from "react-dom";
 import InstallButton from "../InstallButton";
+import Calendar from "./Calendar";
 
 function Icon({ name, filled, size, className = "" }) {
   return (
@@ -123,6 +124,7 @@ function Login({ onLogin }) {
 /* ---------------- Dashboard ---------------- */
 const NAV = [
   { key: "schedule", label: "Schedule Event", icon: "calendar_today" },
+  { key: "calendar", label: "Calendar", icon: "calendar_month" },
   { key: "bookings", label: "Bookings", icon: "bookmark" },
   { key: "visitors", label: "Visitors", icon: "groups" },
 ];
@@ -240,6 +242,7 @@ function Dashboard({ onLogout }) {
           )}
 
           {tab === "schedule" && <ScheduleForm rooms={rooms} onDone={(m) => { setMsg(m); load(); }} />}
+          {tab === "calendar" && <Calendar />}
           {tab === "bookings" && <Bookings rooms={rooms} onEnd={endEvent} />}
           {tab === "visitors" && <Visitors />}
         </div>
@@ -349,7 +352,7 @@ function ScheduleForm({ rooms, onDone }) {
         createPortal(
           <div
             className="bg-surface-container-lowest ambient-shadow p-4 flex items-center justify-between gap-4"
-            style={{ position: "fixed", zIndex: 9999, top: "90px" }}
+            style={{ position: "fixed", zIndex: 9999, top: "90px", left: 0, width: "100%" }}
           >
             <p className="text-sm text-on-surface-variant hidden sm:block">
               {valid ? "Ready to publish — everyone gets notified." : "Fill in room, title, date and times to publish."}
@@ -574,7 +577,7 @@ function Visitors() {
         createPortal(
           <div
             className="bg-surface-container-lowest ambient-shadow p-4 flex items-center gap-3"
-            style={{ position: "fixed", zIndex: 9999, top: "90px" }}
+            style={{ position: "fixed", zIndex: 9999, top: "90px", left: 0, width: "100%" }}
           >
             <Icon name="calendar_month" className="text-secondary" />
             <input

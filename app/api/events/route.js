@@ -6,15 +6,23 @@ import { notifyAll } from "@/lib/webpush";
 
 export const dynamic = "force-dynamic";
 
-// Public: upcoming and in-progress bookings for both rooms, soonest first.
-// Used by the visitor screen to show each room's unavailable time slots.
-export async function GET() {
+// Bookings feed. Default: upcoming + in-progress (visitor busy-times).
+// With ?from=ISO&to=ISO: every active event overlapping that window
+// (past included) — used by the admin calendar view.
+export async function GET(req) {
   await connectDB();
-  const now = new Date();
-  const events = await Event.find({ status: "active", end: { $gt: now } })
-    .sort({ start: 1 })
-    .limit(50)
-    .lean();
+  const { searchParams } = new URL(req.url);
+  const from = searchParams.get("from");
+  const to = searchParams.get("to");
+
+  let query;
+  if (from && to && !isNaN(Date.parse(from)) && !isNaN(Date.parse(to))) {
+    query = { status: "active", start: { $lt: new Date(to) }, end: { $gt: new Date(from) } };
+  } else {
+    query = { status: "active", end: { $gt: new Date() } };
+  }
+
+  const events = await Event.find(query).sort({ start: 1 }).limit(500).lean();
 
   return NextResponse.json({
     events: events.map((e) => ({
