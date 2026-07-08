@@ -31,8 +31,7 @@ const ROLES = [
 
 export default function Home() {
   const router = useRouter();
-  const [selected, setSelected] = useState("guest"); // guest highlighted by default
-  const [chosen, setChosen] = useState(false); // Next enabled only after a tap
+  const [selected, setSelected] = useState("guest"); // guest selected by default
   const [installEvt, setInstallEvt] = useState(null);
 
   useEffect(() => {
@@ -54,11 +53,10 @@ export default function Home() {
 
   function pick(key) {
     setSelected(key);
-    setChosen(true);
   }
 
   function next() {
-    if (!chosen) return;
+    if (!selected) return;
     if (selected === "admin") {
       router.push("/admin");
     } else {
@@ -143,7 +141,7 @@ export default function Home() {
         <div className="mt-auto pb-4 flex justify-end">
           <button
             onClick={next}
-            disabled={!chosen}
+            disabled={!selected}
             className="text-white px-8 py-3 rounded-lg font-bold text-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             style={{ backgroundColor: GREEN }}
           >
