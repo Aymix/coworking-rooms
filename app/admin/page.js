@@ -519,38 +519,77 @@ function Bookings({ rooms, onEnd }) {
 }
 
 /* ---------------- Visitors ---------------- */
+function dayKey(d) {
+  const x = new Date(d);
+  const p = (n) => String(n).padStart(2, "0");
+  return `${x.getFullYear()}-${p(x.getMonth() + 1)}-${p(x.getDate())}`;
+}
+
 function Visitors({ visitors }) {
+  const [date, setDate] = useState(""); // "" = all days
+
+  const filtered = date ? visitors.filter((v) => dayKey(v.at) === date) : visitors;
+  const isToday = date === dayKey(new Date());
+
+  const chip = (active) =>
+    `text-xs font-semibold px-3.5 py-2 rounded-full border border-solid transition-colors ${
+      active
+        ? "bg-secondary-container text-on-secondary-container border-transparent"
+        : "border-outline-variant text-on-surface-variant hover:bg-surface-variant"
+    }`;
+
   return (
     <>
-      <div className="mb-8">
+      <div className="mb-6">
         <h2 className="text-2xl md:text-3xl font-bold text-primary mb-2 tracking-tight">Visitors</h2>
         <p className="text-base text-on-surface-variant">
-          People who checked in on the visitor screen ({visitors.length}).
+          People who checked in on the visitor screen.
         </p>
       </div>
 
-      {visitors.length === 0 && (
+      {/* Calendar filter */}
+      <div className="mb-6 bg-surface-container-lowest rounded-2xl ambient-shadow p-4 flex flex-wrap items-center gap-3">
+        <Icon name="calendar_month" className="text-secondary" />
+        <input
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          className="bg-surface-container-lowest border border-solid border-outline-variant rounded-xl px-3 py-2 text-sm text-primary outline-none focus:border-secondary"
+        />
+        <button onClick={() => setDate(dayKey(new Date()))} className={chip(isToday)}>
+          Today
+        </button>
+        <button onClick={() => setDate("")} className={chip(!date)}>
+          All days
+        </button>
+        <span className="ml-auto text-sm font-medium text-on-surface-variant">
+          {filtered.length} {filtered.length === 1 ? "check-in" : "check-ins"}
+          {date ? ` on ${new Date(date + "T00:00").toLocaleDateString([], { month: "short", day: "numeric" })}` : ""}
+        </span>
+      </div>
+
+      {filtered.length === 0 ? (
         <div className="bg-surface-container-lowest rounded-2xl ambient-shadow p-8 text-center text-on-surface-variant">
-          <Icon name="groups" size={40} className="text-secondary mb-2" />
-          <p>No one has checked in yet.</p>
+          <Icon name="event_busy" size={40} className="text-secondary mb-2" />
+          <p>{date ? "No check-ins on this day." : "No one has checked in yet."}</p>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {filtered.map((v) => (
+            <div key={v.id} className="bg-surface-container-lowest rounded-2xl ambient-shadow p-5 flex items-center gap-4">
+              <div className="w-11 h-11 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold">
+                {v.name.charAt(0).toUpperCase()}
+              </div>
+              <div className="flex-1">
+                <p className="text-base font-semibold text-primary">{v.name}</p>
+                <p className="text-sm text-on-surface-variant">
+                  {v.phone || "No phone"} · {new Date(v.at).toLocaleString()}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       )}
-
-      <div className="flex flex-col gap-3">
-        {visitors.map((v) => (
-          <div key={v.id} className="bg-surface-container-lowest rounded-2xl ambient-shadow p-5 flex items-center gap-4">
-            <div className="w-11 h-11 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold">
-              {v.name.charAt(0).toUpperCase()}
-            </div>
-            <div className="flex-1">
-              <p className="text-base font-semibold text-primary">{v.name}</p>
-              <p className="text-sm text-on-surface-variant">
-                {v.phone || "No phone"} · {new Date(v.at).toLocaleString()}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
     </>
   );
 }
