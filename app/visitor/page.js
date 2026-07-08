@@ -213,20 +213,13 @@ function Gate({ onDone }) {
 
         {err && <p className="text-sm text-error mt-3">{err}</p>}
 
-        <div className="flex gap-3 mt-6">
+        <div className="mt-6">
           <button
             type="submit"
             disabled={busy}
-            className="flex-1 bg-primary text-on-primary rounded-lg py-3 font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
+            className="w-full bg-primary text-on-primary rounded-lg py-3 font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
           >
             {busy ? t("checking") : t("checkInBtn")}
-          </button>
-          <button
-            type="button"
-            onClick={onDone}
-            className="px-6 rounded-lg border border-solid border-outline-variant text-on-surface-variant font-medium hover:bg-surface-variant transition-colors"
-          >
-            {t("skip")}
           </button>
         </div>
       </form>
