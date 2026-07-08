@@ -7,19 +7,13 @@ import InstallButton from "./InstallButton";
 const GREEN = "rgb(0, 138, 0)";
 const PASS_KEY = "cw_visitor_pass";
 
-// Visitor + Guest are public; Admin is separated below a divider.
+// Visitor is public; Admin is separated below a divider.
 const ROLES = [
   {
     key: "visitor",
     title: "Visitor",
     img: "https://lh3.googleusercontent.com/aida-public/AB6AXuDXeX8kVuuu85gl9xLMo6E5RNOQXuPmGZmEbq7OG11nX6oALVAch9-6zzBMmiXox4CyUdqE1JhKKMPF5IV62ovtnE-RALNR2sbOOl6EsZ98sg5b66gzCC5alVYiM7OhT1AMsfCS15ck4kWL98pW0SPZUQNXM_13ABUyNJHRIJ7qLEwoh0S_cjumfwvJdTgiSrjjZGe14kR3l57KWVRZHPZIce-V4XItmW-9jhRHWbieTZj24nUqhhieLMC5Dz3qAhef1A",
     alt: "Cat illustration",
-  },
-  {
-    key: "guest",
-    title: "Guest",
-    img: "https://lh3.googleusercontent.com/aida-public/AB6AXuA98pygzKtI9IOE7ZPj64HqFFPhilKX9gaAa9kLiQT1ZpXp27AMK0eoeuMhHpltwEv0ZRgEhPad0TFCLmcNs94tEBk9XWt4wVElpF11BWyZ3i1TabF5BkYuMH893cB49QFST90TtpsiOcd88-iSpTDrx0_GVPKbqJSOT35FIfl6sW-6gfbJoREPutkv7EuwN0lQoFng9AZ5pvugt5xGMb-wnCSc__Mctehmu6uWHaCBCV87WzQuH7C3MX6oMXnl8Szv4w",
-    alt: "Dog illustration",
   },
   {
     key: "admin",
@@ -31,7 +25,7 @@ const ROLES = [
 
 export default function Home() {
   const router = useRouter();
-  const [selected, setSelected] = useState("guest"); // guest selected by default
+  const [selected, setSelected] = useState("visitor"); // visitor selected by default
 
   function pick(key) {
     setSelected(key);
