@@ -207,14 +207,18 @@ function Dashboard({ onLogout }) {
         <div className="flex-1 overflow-y-auto p-5 md:p-8 max-w-4xl mx-auto w-full pb-32 md:pb-12">
           {msg && (
             <div
-              className={`mb-6 rounded-xl px-4 py-3 text-sm font-medium flex items-center gap-2 ${
+              className={`mb-6 rounded-xl px-4 py-3 text-sm font-medium flex items-start gap-2 ${
                 msg.type === "ok"
                   ? "bg-secondary-container text-on-secondary-container"
                   : "bg-error-container text-on-error-container"
               }`}
             >
-              <Icon name={msg.type === "ok" ? "check_circle" : "error"} size={18} />
-              {msg.text}
+              <Icon
+                name={msg.type === "ok" ? "check_circle" : "error"}
+                size={18}
+                className="shrink-0 mt-0.5"
+              />
+              <span className="min-w-0 break-words leading-snug">{msg.text}</span>
             </div>
           )}
 

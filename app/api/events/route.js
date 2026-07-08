@@ -116,8 +116,15 @@ export async function POST(req) {
     return NextResponse.json({ id: String(event._id) }, { status: 201 });
   } catch (err) {
     console.error("POST /api/events failed:", err.message);
+    const conn = /whitelist|could not connect|serverselection|etimedout|enotfound|topology/i.test(
+      err.message || ""
+    );
     return NextResponse.json(
-      { error: "Could not save the event. " + err.message },
+      {
+        error: conn
+          ? "Could not reach the database. Please check the connection and try again."
+          : "Could not save the event. Please try again.",
+      },
       { status: 500 }
     );
   }
