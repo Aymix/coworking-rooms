@@ -160,7 +160,7 @@ function Dashboard({ onLogout }) {
             <p className="text-sm text-on-surface-variant">Coworking Rooms</p>
           </div>
         </div>
-        <ul className="flex-1 px-4 flex flex-col gap-2">
+        <ul className="flex-1 px-4 flex flex-col gap-2 list-none m-0">
           {NAV.map((n) => {
             const active = tab === n.key;
             return (
