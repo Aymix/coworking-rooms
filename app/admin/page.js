@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { createPortal } from "react-dom";
 import InstallButton from "../InstallButton";
 
 function Icon({ name, filled, size, className = "" }) {
@@ -213,6 +214,9 @@ function Dashboard({ onLogout }) {
           </button>
         </header>
 
+        {/* Slot for the Schedule action card — rendered here (main level) via portal */}
+        <div id="admin-action-slot" />
+
         <div className="flex-1 overflow-y-auto p-5 md:p-8 max-w-4xl mx-auto w-full pb-32 md:pb-12">
           {msg && (
             <div
@@ -270,8 +274,10 @@ function ScheduleForm({ rooms, onDone }) {
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [busy, setBusy] = useState(false);
+  const [actionSlot, setActionSlot] = useState(null);
 
   useEffect(() => {
+    setActionSlot(document.getElementById("admin-action-slot"));
     const now = new Date();
     const p = (n) => String(n).padStart(2, "0");
     setDate(`${now.getFullYear()}-${p(now.getMonth() + 1)}-${p(now.getDate())}`);
@@ -334,37 +340,41 @@ function ScheduleForm({ rooms, onDone }) {
         </p>
       </div>
 
-      {/* Action card — fixed near the top, at the same level as the header */}
-      <div
-        className="bg-surface-container-lowest ambient-shadow p-4 flex items-center justify-between gap-4"
-        style={{ position: "fixed", zIndex: 9999, top: "90px" }}
-      >
-        <p className="text-sm text-on-surface-variant hidden sm:block">
-          {valid ? "Ready to publish — everyone gets notified." : "Fill in room, title, date and times to publish."}
-        </p>
-        <div className="flex items-center gap-3 ml-auto">
-          <button
-            type="button"
-            onClick={() => {
-              setTitle("");
-              setDescription("");
-              setRoom("");
-            }}
-            className="text-xs font-semibold tracking-wider uppercase px-6 py-3 rounded-xl text-outline hover:text-primary transition-colors"
+      {/* Action card — rendered at the header's level (via portal), fixed near the top */}
+      {actionSlot &&
+        createPortal(
+          <div
+            className="bg-surface-container-lowest ambient-shadow p-4 flex items-center justify-between gap-4"
+            style={{ position: "fixed", zIndex: 9999, top: "90px" }}
           >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            form="schedule-form"
-            disabled={!valid || busy}
-            className="text-xs font-semibold tracking-wider uppercase px-8 py-3 rounded-xl bg-primary text-on-primary hover:bg-opacity-90 transition-all active:scale-95 shadow-md flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100"
-          >
-            <Icon name="publish" size={18} />
-            {busy ? "Publishing…" : "Publish Event"}
-          </button>
-        </div>
-      </div>
+            <p className="text-sm text-on-surface-variant hidden sm:block">
+              {valid ? "Ready to publish — everyone gets notified." : "Fill in room, title, date and times to publish."}
+            </p>
+            <div className="flex items-center gap-3 ml-auto">
+              <button
+                type="button"
+                onClick={() => {
+                  setTitle("");
+                  setDescription("");
+                  setRoom("");
+                }}
+                className="text-xs font-semibold tracking-wider uppercase px-6 py-3 rounded-xl text-outline hover:text-primary transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                form="schedule-form"
+                disabled={!valid || busy}
+                className="text-xs font-semibold tracking-wider uppercase px-8 py-3 rounded-xl bg-primary text-on-primary hover:bg-opacity-90 transition-all active:scale-95 shadow-md flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100"
+              >
+                <Icon name="publish" size={18} />
+                {busy ? "Publishing…" : "Publish Event"}
+              </button>
+            </div>
+          </div>,
+          actionSlot
+        )}
 
       <form id="schedule-form" className="flex flex-col gap-6" onSubmit={submit}>
         {/* Main details card */}
