@@ -332,7 +332,6 @@ function Board() {
           <a href="/" className="text-on-surface-variant p-2 rounded-lg active:scale-95">
             <Icon name="arrow_back" />
           </a>
-          <h1 className="text-lg font-bold text-primary">{t("appTitle")}</h1>
           <div className="flex items-center gap-[5px]">
             <LangSwitch />
             <button
