@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, Fragment } from "react";
+import { useState, Fragment } from "react";
 import { useRouter } from "next/navigation";
-import { registerSW } from "@/lib/pushClient";
+import InstallButton from "./InstallButton";
 
 const GREEN = "rgb(0, 138, 0)";
 const PASS_KEY = "cw_visitor_pass";
@@ -32,24 +32,6 @@ const ROLES = [
 export default function Home() {
   const router = useRouter();
   const [selected, setSelected] = useState("guest"); // guest selected by default
-  const [installEvt, setInstallEvt] = useState(null);
-
-  useEffect(() => {
-    registerSW();
-    const onPrompt = (e) => {
-      e.preventDefault();
-      setInstallEvt(e);
-    };
-    window.addEventListener("beforeinstallprompt", onPrompt);
-    return () => window.removeEventListener("beforeinstallprompt", onPrompt);
-  }, []);
-
-  async function install() {
-    if (!installEvt) return;
-    installEvt.prompt();
-    await installEvt.userChoice;
-    setInstallEvt(null);
-  }
 
   function pick(key) {
     setSelected(key);
@@ -80,17 +62,9 @@ export default function Home() {
         rel="stylesheet"
       />
 
-      <main className="flex-grow p-5 flex flex-col max-w-md mx-auto w-full">
-        {installEvt && (
-          <button
-            onClick={install}
-            className="self-end mb-2 flex items-center gap-1.5 text-sm font-semibold text-secondary border border-solid border-secondary rounded-full px-3 py-1.5 hover:bg-secondary hover:text-on-secondary transition-colors"
-          >
-            <span className="material-symbols-outlined !text-[18px]">install_mobile</span>
-            Install app
-          </button>
-        )}
+      <InstallButton />
 
+      <main className="flex-grow p-5 flex flex-col max-w-md mx-auto w-full">
         <section className="mt-6 mb-6 text-center">
           <h2 className="text-[26px] leading-8 font-bold text-on-surface mb-2 tracking-tight">
             Coworking Rooms

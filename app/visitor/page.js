@@ -14,6 +14,7 @@ import {
 } from "@/lib/pushClient";
 import { STRINGS } from "@/lib/visitorI18n";
 import FloorMap from "./FloorMap";
+import InstallButton from "../InstallButton";
 
 const PASS_KEY = "cw_visitor_pass";
 const LANG_KEY = "cw_lang";
@@ -22,7 +23,31 @@ const LANG_KEY = "cw_lang";
 const I18nCtx = createContext({ lang: "en", setLang: () => {}, t: (k) => k });
 const useI18n = () => useContext(I18nCtx);
 
-const FLAG = { en: "🇬🇧", fr: "🇫🇷" };
+// Inline SVG flags (emoji flags don't render on Windows/some browsers).
+function Flag({ code }) {
+  const cls = "w-[18px] h-[12px] rounded-[2px] shrink-0";
+  if (code === "fr") {
+    return (
+      <svg viewBox="0 0 3 2" className={cls} aria-hidden="true">
+        <rect width="1" height="2" x="0" fill="#0055A4" />
+        <rect width="1" height="2" x="1" fill="#ffffff" />
+        <rect width="1" height="2" x="2" fill="#EF4135" />
+      </svg>
+    );
+  }
+  // United Kingdom
+  return (
+    <svg viewBox="0 0 60 30" className={cls} aria-hidden="true">
+      <rect width="60" height="30" fill="#012169" />
+      <path d="M0,0 L60,30 M60,0 L0,30" stroke="#ffffff" strokeWidth="6" />
+      <path d="M0,0 L60,30 M60,0 L0,30" stroke="#C8102E" strokeWidth="4" />
+      <rect x="25" width="10" height="30" fill="#ffffff" />
+      <rect y="10" width="60" height="10" fill="#ffffff" />
+      <rect x="27" width="6" height="30" fill="#C8102E" />
+      <rect y="12" width="60" height="6" fill="#C8102E" />
+    </svg>
+  );
+}
 
 function LangSwitch({ className = "" }) {
   const { lang, setLang } = useI18n();
@@ -35,13 +60,13 @@ function LangSwitch({ className = "" }) {
           key={l}
           type="button"
           onClick={() => setLang(l)}
-          className={`px-2.5 flex items-center gap-1 uppercase transition-colors ${
+          className={`px-2.5 flex items-center gap-1.5 uppercase transition-colors ${
             lang === l
               ? "bg-secondary-container text-on-secondary-container"
               : "text-on-surface-variant"
           }`}
         >
-          <span className="text-sm leading-none">{FLAG[l]}</span>
+          <Flag code={l} />
           {l}
         </button>
       ))}
@@ -115,6 +140,7 @@ export default function Visitor() {
   return (
     <I18nCtx.Provider value={{ lang, setLang, t }}>
       {!passed ? <Gate onDone={pass} /> : <Board />}
+      <InstallButton />
     </I18nCtx.Provider>
   );
 }

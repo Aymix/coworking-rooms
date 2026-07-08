@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import InstallButton from "../InstallButton";
 
 function Icon({ name, filled, size, className = "" }) {
   return (
@@ -28,8 +29,16 @@ export default function Admin() {
   }, []);
 
   if (checking) return <div className="min-h-screen bg-background" />;
-  if (!authed) return <Login onLogin={() => setAuthed(true)} />;
-  return <Dashboard onLogout={() => setAuthed(false)} />;
+  return (
+    <>
+      {authed ? (
+        <Dashboard onLogout={() => setAuthed(false)} />
+      ) : (
+        <Login onLogin={() => setAuthed(true)} />
+      )}
+      <InstallButton />
+    </>
+  );
 }
 
 /* ---------------- Login ---------------- */
@@ -194,7 +203,7 @@ function Dashboard({ onLogout }) {
       {/* Main */}
       <main className="flex-1 flex flex-col min-w-0">
         {/* TopAppBar (mobile) */}
-        <header className="md:hidden w-full top-0 sticky bg-surface border-b border-solid border-outline-variant z-40 flex justify-between items-center px-5 py-4">
+        <header className="md:hidden w-full top-0 sticky bg-surface border-b border-solid border-outline-variant shadow-sm z-50 flex justify-between items-center px-5 py-4">
           <a href="/" className="text-on-surface-variant hover:bg-surface-container-low rounded-full p-2 active:scale-95">
             <Icon name="arrow_back" />
           </a>
