@@ -1,0 +1,30 @@
+name: Deploy to Coolify
+
+# Redeploy the app on Coolify whenever master is updated.
+on:
+  push:
+    branches: [master]
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Coolify deployment
+        run: |
+          echo "Triggering deployment for commit ${GITHUB_SHA::7}…"
+          code=$(curl -s -o /tmp/resp.json -w "%{http_code}" \
+            -X GET "${COOLIFY_URL}/api/v1/deploy?uuid=${COOLIFY_APP_UUID}&force=false" \
+            -H "Authorization: Bearer ${COOLIFY_TOKEN}")
+          echo "HTTP ${code}"
+          cat /tmp/resp.json
+          echo
+          if [ "$code" -ne 200 ]; then
+            echo "::error::Coolify deploy failed (HTTP ${code})"
+            exit 1
+          fi
+          echo "✅ Deployment queued on Coolify."
+        env:
+          COOLIFY_URL: http://31.97.193.81:8000
+          COOLIFY_APP_UUID: i11ijv4qluanogi53c7jpcqg
+          COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
