@@ -6,6 +6,10 @@ self.addEventListener("activate", (event) =>
   event.waitUntil(self.clients.claim())
 );
 
+// A pass-through fetch handler — required for the browser to treat the app as
+// installable (PWA add-to-home-screen / install prompt).
+self.addEventListener("fetch", () => {});
+
 self.addEventListener("push", (event) => {
   let data = {};
   try {
