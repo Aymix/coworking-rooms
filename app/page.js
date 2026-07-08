@@ -127,10 +127,10 @@ export default function Home() {
         <a
           href="/coworking-rooms-guide.pdf"
           download
-          className="mt-auto mx-auto flex items-center gap-1.5 text-xs font-medium text-on-surface-variant hover:text-primary py-4 transition-colors"
+          className="mt-auto mb-6 mx-auto flex items-center gap-2 text-sm font-semibold text-secondary border-2 border-solid border-secondary rounded-full px-6 py-3 hover:bg-secondary hover:text-on-secondary active:scale-95 transition-all"
         >
-          <span className="material-symbols-outlined !text-[16px]">description</span>
-          Download product guide (PDF)
+          <span className="material-symbols-outlined !text-[18px]">download</span>
+          Download the guide
         </a>
       </main>
     </div>
