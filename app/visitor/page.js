@@ -333,7 +333,7 @@ function Board() {
             <Icon name="arrow_back" />
           </a>
           <h1 className="text-lg font-bold text-primary">{t("appTitle")}</h1>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-[5px]">
             <LangSwitch />
             <button
               onClick={() => setView("alerts")}
