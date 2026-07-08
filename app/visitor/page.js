@@ -26,14 +26,14 @@ function LangSwitch({ className = "" }) {
   const { lang, setLang } = useI18n();
   return (
     <div
-      className={`inline-flex items-center rounded-full border border-solid border-outline-variant overflow-hidden text-xs font-semibold ${className}`}
+      className={`inline-flex items-stretch h-10 rounded-full border border-solid border-outline-variant overflow-hidden text-xs font-semibold ${className}`}
     >
       {["en", "fr"].map((l) => (
         <button
           key={l}
           type="button"
           onClick={() => setLang(l)}
-          className={`px-2.5 py-1 uppercase transition-colors ${
+          className={`px-3 flex items-center uppercase transition-colors ${
             lang === l
               ? "bg-secondary-container text-on-secondary-container"
               : "text-on-surface-variant"
