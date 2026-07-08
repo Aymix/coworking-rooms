@@ -122,6 +122,16 @@ export default function Home() {
             Next
           </button>
         </div>
+
+        {/* Downloadable product guide */}
+        <a
+          href="/coworking-rooms-guide.pdf"
+          download
+          className="mt-auto mx-auto flex items-center gap-1.5 text-xs font-medium text-on-surface-variant hover:text-primary py-4 transition-colors"
+        >
+          <span className="material-symbols-outlined !text-[16px]">description</span>
+          Download product guide (PDF)
+        </a>
       </main>
     </div>
   );
