@@ -62,7 +62,7 @@ export default function Home() {
         rel="stylesheet"
       />
 
-      <InstallButton />
+      <InstallButton side="left" />
 
       <main className="flex-grow p-5 flex flex-col max-w-md mx-auto w-full">
         <section className="mt-6 mb-6 text-center">
