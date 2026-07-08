@@ -105,8 +105,13 @@ export default function Home() {
               >
                 <img alt={r.alt} className="w-24 h-24 object-cover rounded-lg" src={r.img} />
                 <h3 className="text-xl font-semibold text-on-surface">{r.title}</h3>
-                <span className="material-symbols-outlined text-on-surface-variant ml-auto">
-                  {r.trailing}
+                <span
+                  className={`material-symbols-outlined ml-auto ${
+                    active ? "" : "text-on-surface-variant"
+                  }`}
+                  style={active ? { color: GREEN } : undefined}
+                >
+                  {active ? "door_open" : "door_front"}
                 </span>
               </button>
             );
