@@ -176,7 +176,14 @@ function Gate({ onDone }) {
     "w-full rounded-lg bg-surface-container-low text-on-surface border border-solid border-outline-variant px-4 py-3 outline-none focus:border-secondary";
 
   return (
-    <div className="min-h-screen bg-background text-on-background font-sans flex items-center justify-center px-5">
+    <div className="relative min-h-screen bg-background text-on-background font-sans flex items-center justify-center px-5">
+      <a
+        href="/"
+        aria-label="Back"
+        className="absolute top-4 left-4 text-on-surface-variant hover:bg-surface-container-low rounded-full p-2 active:scale-95 transition-colors"
+      >
+        <Icon name="arrow_back" />
+      </a>
       <form
         onSubmit={submit}
         className="w-full max-w-md bg-surface-container-lowest rounded-xl border border-solid border-outline-variant/60 shadow-sm p-6 md:p-8"
