@@ -18,6 +18,24 @@ import InstallButton from "../InstallButton";
 
 const PASS_KEY = "cw_visitor_pass";
 const LANG_KEY = "cw_lang";
+const ACCOUNTS_KEY = "cw_accounts"; // accounts checked in from this device
+
+function readAccounts() {
+  try {
+    const v = JSON.parse(localStorage.getItem(ACCOUNTS_KEY) || "[]");
+    return Array.isArray(v) ? v : [];
+  } catch (e) {
+    return [];
+  }
+}
+function rememberAccount(acc) {
+  try {
+    const list = readAccounts().filter(
+      (a) => a.name.trim().toLowerCase() !== acc.name.trim().toLowerCase()
+    );
+    localStorage.setItem(ACCOUNTS_KEY, JSON.stringify([acc, ...list].slice(0, 6)));
+  } catch (e) {}
+}
 
 /* ---------------- i18n ---------------- */
 const I18nCtx = createContext({ lang: "en", setLang: () => {}, t: (k) => k });
@@ -155,20 +173,18 @@ function Gate({ onDone }) {
   const [accounts, setAccounts] = useState([]);
 
   useEffect(() => {
-    fetch("/api/visitor/accounts")
-      .then((r) => r.json())
-      .then((d) => setAccounts(d.accounts || []))
-      .catch(() => {});
+    setAccounts(readAccounts());
   }, []);
 
-  async function checkInAs(accountId) {
+  async function checkInAs(acc) {
     setBusy(true);
     try {
       await fetch("/api/visitor", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ accountId }),
+        body: JSON.stringify({ accountId: acc.id }),
       });
+      rememberAccount(acc); // bump to front
     } catch (e) {}
     setBusy(false);
     onDone();
@@ -183,11 +199,13 @@ function Gate({ onDone }) {
     setBusy(true);
     setErr("");
     try {
-      await fetch("/api/visitor", {
+      const res = await fetch("/api/visitor", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, phone }),
       });
+      const data = await res.json().catch(() => ({}));
+      if (data.id) rememberAccount({ id: data.id, name: name.trim() });
     } catch (e) {}
     setBusy(false);
     onDone();
@@ -229,7 +247,7 @@ function Gate({ onDone }) {
                   key={a.id}
                   type="button"
                   disabled={busy}
-                  onClick={() => checkInAs(a.id)}
+                  onClick={() => checkInAs(a)}
                   className="flex items-center gap-2 text-sm font-medium pl-1.5 pr-3 py-1.5 rounded-full bg-surface-container-low border border-solid border-outline-variant text-on-surface hover:bg-secondary-container hover:text-on-secondary-container hover:border-transparent active:scale-95 transition-colors disabled:opacity-50"
                 >
                   <span className="w-6 h-6 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center text-xs font-bold">
