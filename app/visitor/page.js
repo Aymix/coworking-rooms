@@ -413,7 +413,6 @@ function Board() {
 }
 
 /* ---------------- Room card ---------------- */
-const CAP = { A: 12, B: 8 };
 
 function hoursUntil(d, t) {
   const h = (new Date(d).getTime() - Date.now()) / 3600000;
@@ -441,10 +440,6 @@ function RoomCard({ r, onSchedule }) {
           <h3 className="text-base md:text-xl font-semibold text-white leading-tight">
             {t("studyRoom")} {r.room}
           </h3>
-          <p className="text-[11px] md:text-sm text-white/90 flex items-center gap-1 mt-0.5">
-            <Icon name="groups" className="!text-[14px]" />
-            {t("cap")}: {CAP[r.room]}
-          </p>
         </div>
       </div>
 
