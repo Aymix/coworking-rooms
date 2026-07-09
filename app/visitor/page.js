@@ -152,6 +152,27 @@ function Gate({ onDone }) {
   const [phone, setPhone] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+  const [accounts, setAccounts] = useState([]);
+
+  useEffect(() => {
+    fetch("/api/visitor/accounts")
+      .then((r) => r.json())
+      .then((d) => setAccounts(d.accounts || []))
+      .catch(() => {});
+  }, []);
+
+  async function checkInAs(accountId) {
+    setBusy(true);
+    try {
+      await fetch("/api/visitor", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accountId }),
+      });
+    } catch (e) {}
+    setBusy(false);
+    onDone();
+  }
 
   async function submit(e) {
     e.preventDefault();
@@ -196,6 +217,35 @@ function Gate({ onDone }) {
         </div>
         <h1 className="text-2xl font-bold text-primary mb-1">{t("gateTitle")}</h1>
         <p className="text-sm text-on-surface-variant mb-6">{t("gateDesc")}</p>
+
+        {accounts.length > 0 && (
+          <div className="mb-6">
+            <p className="text-xs font-semibold tracking-wider uppercase text-on-surface-variant mb-2">
+              {t("returning")}
+            </p>
+            <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto">
+              {accounts.map((a) => (
+                <button
+                  key={a.id}
+                  type="button"
+                  disabled={busy}
+                  onClick={() => checkInAs(a.id)}
+                  className="flex items-center gap-2 text-sm font-medium pl-1.5 pr-3 py-1.5 rounded-full bg-surface-container-low border border-solid border-outline-variant text-on-surface hover:bg-secondary-container hover:text-on-secondary-container hover:border-transparent active:scale-95 transition-colors disabled:opacity-50"
+                >
+                  <span className="w-6 h-6 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center text-xs font-bold">
+                    {a.name.charAt(0).toUpperCase()}
+                  </span>
+                  {a.name}
+                </button>
+              ))}
+            </div>
+            <div className="flex items-center gap-3 my-5">
+              <span className="h-px flex-1 bg-outline-variant/60" />
+              <span className="text-xs text-on-surface-variant">{t("orNew")}</span>
+              <span className="h-px flex-1 bg-outline-variant/60" />
+            </div>
+          </div>
+        )}
 
         <label className="block text-xs font-semibold tracking-wider uppercase text-on-surface-variant mb-1.5">
           {t("name")}
