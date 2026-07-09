@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import { Event, ROOMS } from "@/lib/models";
@@ -52,15 +53,75 @@ function fmtWhen(d) {
 }
 
 // Admin posts an event to a room. The room flips to "booked" and every
-// subscriber gets a push notification.
+// subscriber gets a push notification. With `slots` (array of {start,end}),
+// it books a multi-date series: one booking per slot, sharing a seriesId,
+// skipping any slot that clashes with an existing booking.
 export async function POST(req) {
   if (!(await isAdmin())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { room, title, description, start, end } = await req.json();
+  const body = await req.json();
+  const { room, title, description, start, end, slots } = body;
 
-  if (!ROOMS.includes(room) || !title || !start || !end) {
+  if (!ROOMS.includes(room) || !title) {
+    return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+  }
+
+  // --- Multi-date series ---
+  if (Array.isArray(slots) && slots.length) {
+    try {
+      await connectDB();
+      const seriesId = randomUUID();
+      let created = 0;
+      const skipped = [];
+      for (const s of slots) {
+        const sd = new Date(s.start);
+        const ed = new Date(s.end);
+        if (!(sd < ed)) continue;
+        const clash = await Event.findOne({
+          room,
+          status: "active",
+          start: { $lt: ed },
+          end: { $gt: sd },
+        });
+        if (clash) {
+          skipped.push(fmtWhen(sd));
+          continue;
+        }
+        await Event.create({
+          room,
+          title,
+          description: description || "",
+          start: sd,
+          end: ed,
+          status: "active",
+          seriesId,
+        });
+        created += 1;
+      }
+      if (created > 0) {
+        await notifyAll({
+          title: `🔴 Room ${room} — ${created} session${created > 1 ? "s" : ""} booked`,
+          body: title,
+          url: "/",
+        });
+      }
+      return NextResponse.json(
+        { created, skipped, seriesId },
+        { status: created ? 201 : 409 }
+      );
+    } catch (err) {
+      console.error("POST /api/events (series) failed:", err.message);
+      const conn = /whitelist|could not connect|serverselection|etimedout|enotfound|topology/i.test(err.message || "");
+      return NextResponse.json(
+        { error: conn ? "Could not reach the database. Please try again." : "Could not save the sessions." },
+        { status: 500 }
+      );
+    }
+  }
+
+  if (!start || !end) {
     return NextResponse.json({ error: "Missing fields" }, { status: 400 });
   }
 

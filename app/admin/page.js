@@ -281,6 +281,9 @@ function ScheduleForm({ rooms, onDone }) {
   const [endTime, setEndTime] = useState("");
   const [busy, setBusy] = useState(false);
   const [actionSlot, setActionSlot] = useState(null);
+  const [mode, setMode] = useState("single"); // "single" | "range"
+  const [endDate, setEndDate] = useState("");
+  const [skipWeekends, setSkipWeekends] = useState(false);
 
   useEffect(() => {
     setActionSlot(document.getElementById("admin-action-slot"));
@@ -290,7 +293,27 @@ function ScheduleForm({ rooms, onDone }) {
     setStartTime(`${p(now.getHours())}:${p(now.getMinutes())}`);
     const later = new Date(now.getTime() + 60 * 60 * 1000);
     setEndTime(`${p(later.getHours())}:${p(later.getMinutes())}`);
+    const dstr = `${now.getFullYear()}-${p(now.getMonth() + 1)}-${p(now.getDate())}`;
+    setEndDate(dstr);
   }, []);
+
+  // Expand a date range into one {start,end} slot per day (optionally skipping weekends).
+  function buildSlots() {
+    const slots = [];
+    const cur = new Date(`${date}T00:00`);
+    const last = new Date(`${endDate}T00:00`);
+    for (let i = 0; cur <= last && i < 400; i++, cur.setDate(cur.getDate() + 1)) {
+      const wd = cur.getDay();
+      if (skipWeekends && (wd === 0 || wd === 6)) continue;
+      const p = (n) => String(n).padStart(2, "0");
+      const d = `${cur.getFullYear()}-${p(cur.getMonth() + 1)}-${p(cur.getDate())}`;
+      slots.push({
+        start: new Date(`${d}T${startTime}`).toISOString(),
+        end: new Date(`${d}T${endTime}`).toISOString(),
+      });
+    }
+    return slots;
+  }
 
   async function submit(e) {
     e.preventDefault();
@@ -299,25 +322,42 @@ function ScheduleForm({ rooms, onDone }) {
       return;
     }
     setBusy(true);
+
+    const isRange = mode === "range";
+    const payload = isRange
+      ? { room, title, description, slots: buildSlots() }
+      : {
+          room,
+          title,
+          description,
+          start: new Date(`${date}T${startTime}`).toISOString(),
+          end: new Date(`${date}T${endTime}`).toISOString(),
+        };
+
     const res = await fetch("/api/events", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        room,
-        title,
-        description,
-        start: new Date(`${date}T${startTime}`).toISOString(),
-        end: new Date(`${date}T${endTime}`).toISOString(),
-      }),
+      body: JSON.stringify(payload),
     });
     setBusy(false);
     const data = await res.json();
-    if (res.ok) {
+
+    if (res.ok || (isRange && data.created)) {
       setTitle("");
       setDescription("");
-      onDone({ type: "ok", text: `Published to Study Room ${room} — everyone notified.` });
+      if (isRange) {
+        const skip = data.skipped?.length ? ` (${data.skipped.length} skipped for conflicts)` : "";
+        onDone({ type: "ok", text: `Published ${data.created} session${data.created > 1 ? "s" : ""} to Study Room ${room}${skip} — everyone notified.` });
+      } else {
+        onDone({ type: "ok", text: `Published to Study Room ${room} — everyone notified.` });
+      }
     } else {
-      onDone({ type: "err", text: data.error || "Failed to publish." });
+      onDone({
+        type: "err",
+        text: isRange && data.created === 0
+          ? "Every date clashed with an existing booking — nothing published."
+          : data.error || "Failed to publish.",
+      });
     }
   }
 
@@ -327,13 +367,10 @@ function ScheduleForm({ rooms, onDone }) {
     "block text-xs font-semibold tracking-wider uppercase text-on-surface-variant";
 
   // Publish is enabled only once every required field is filled and coherent.
-  const valid =
-    !!room &&
-    title.trim().length > 0 &&
-    !!date &&
-    !!startTime &&
-    !!endTime &&
-    new Date(`${date}T${endTime}`) > new Date(`${date}T${startTime}`);
+  const timesOk =
+    !!startTime && !!endTime && new Date(`${date}T${endTime}`) > new Date(`${date}T${startTime}`);
+  const rangeOk = mode === "single" || (!!endDate && new Date(`${endDate}T00:00`) >= new Date(`${date}T00:00`));
+  const valid = !!room && title.trim().length > 0 && !!date && timesOk && rangeOk;
 
   return (
     <>
@@ -439,15 +476,63 @@ function ScheduleForm({ rooms, onDone }) {
           </div>
 
           <div className="bg-surface-container-lowest rounded-2xl ambient-shadow p-6 h-full flex flex-col">
-            <label className={`${capsLabel} mb-4 flex items-center gap-2`}>
-              <Icon name="schedule" size={16} /> Date &amp; Time
-            </label>
+            <div className="flex items-center justify-between mb-4">
+              <label className={`${capsLabel} flex items-center gap-2`}>
+                <Icon name="schedule" size={16} /> Date &amp; Time
+              </label>
+              <div className="flex items-center gap-1 bg-surface-container-low rounded-lg p-0.5 border border-solid border-outline-variant/60">
+                {["single", "range"].map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setMode(m)}
+                    className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-colors ${
+                      mode === m ? "bg-primary text-on-primary" : "text-on-surface-variant"
+                    }`}
+                  >
+                    {m === "single" ? "Single day" : "Date range"}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="flex flex-col gap-4 mt-auto">
-              <input type="date" className={field} value={date} onChange={(e) => setDate(e.target.value)} required />
+              {mode === "range" ? (
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <span className="block text-[11px] font-semibold uppercase text-on-surface-variant mb-1">From</span>
+                    <input type="date" className={field} value={date} onChange={(e) => setDate(e.target.value)} required />
+                  </div>
+                  <div>
+                    <span className="block text-[11px] font-semibold uppercase text-on-surface-variant mb-1">To</span>
+                    <input type="date" className={field} value={endDate} min={date} onChange={(e) => setEndDate(e.target.value)} required />
+                  </div>
+                </div>
+              ) : (
+                <input type="date" className={field} value={date} onChange={(e) => setDate(e.target.value)} required />
+              )}
+
               <div className="grid grid-cols-2 gap-3">
                 <input type="time" className={field} value={startTime} onChange={(e) => setStartTime(e.target.value)} required />
                 <input type="time" className={field} value={endTime} onChange={(e) => setEndTime(e.target.value)} required />
               </div>
+
+              {mode === "range" && (
+                <label className="flex items-center gap-2 text-sm text-on-surface-variant cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={skipWeekends}
+                    onChange={(e) => setSkipWeekends(e.target.checked)}
+                    className="w-4 h-4 accent-primary"
+                  />
+                  Skip weekends
+                  {date && endDate && (
+                    <span className="ml-auto text-xs font-medium text-secondary">
+                      {buildSlots().length} day{buildSlots().length !== 1 ? "s" : ""}
+                    </span>
+                  )}
+                </label>
+              )}
             </div>
           </div>
         </div>
