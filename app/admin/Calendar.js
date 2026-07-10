@@ -19,6 +19,12 @@ const sameDay = (a, b) => startOfDay(a).getTime() === startOfDay(b).getTime();
 const fmtTime = (d) => new Date(d).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
+// Everything overlapping `day`, earliest first — a multi-day booking shows on each of its days.
+const itemsOn = (items, day) =>
+  items
+    .filter((e) => e.start < addDays(day, 1) && e.end > day)
+    .sort((a, b) => a.start - b.start);
+
 const ROOM = {
   A: { bg: "#e0e7ff", border: "#6366f1", text: "#3730a3", dot: "#6366f1" },
   B: { bg: "#ccfbf1", border: "#0d9488", text: "#115e59", dot: "#0d9488" },
@@ -35,6 +41,7 @@ export default function Calendar() {
   const [cursor, setCursor] = useState(() => new Date());
   const [items, setItems] = useState([]);
   const [sel, setSel] = useState(null);
+  const [agendaDay, setAgendaDay] = useState(null);
 
   const range = useMemo(() => {
     if (view === "month") {
@@ -145,18 +152,23 @@ export default function Calendar() {
         )}
       </div>
 
-      {view === "month" && <MonthView cursor={cursor} items={items} onPick={setSel} />}
+      {view === "month" && <MonthView cursor={cursor} items={items} onPick={setSel} onDay={setAgendaDay} />}
       {view !== "month" && (
         <TimeGrid days={view === "week" ? Array.from({ length: 7 }, (_, i) => addDays(startOfWeek(cursor), i)) : [startOfDay(cursor)]} items={items} onPick={setSel} />
       )}
 
+      {agendaDay && (
+        <DayAgenda day={agendaDay} items={itemsOn(items, agendaDay)} onPick={setSel} onClose={() => setAgendaDay(null)} />
+      )}
+
+      {/* Layered above the agenda, so closing it drops back to the day's list. */}
       {sel && <ItemDetail e={sel} onClose={() => setSel(null)} />}
     </>
   );
 }
 
 /* ---- Month grid ---- */
-function MonthView({ cursor, items, onPick }) {
+function MonthView({ cursor, items, onPick, onDay }) {
   const first = startOfWeek(startOfMonth(cursor));
   const cells = Array.from({ length: 42 }, (_, i) => addDays(first, i));
   const today = new Date();
@@ -172,23 +184,104 @@ function MonthView({ cursor, items, onPick }) {
         {cells.map((day, i) => {
           const inMonth = day.getMonth() === cursor.getMonth();
           const isToday = sameDay(day, today);
-          const dayItems = items.filter((e) => e.start < addDays(day, 1) && e.end > day).sort((a, b) => a.start - b.start);
+          const dayItems = itemsOn(items, day);
+          const num = `text-xs font-semibold w-6 h-6 flex items-center justify-center rounded-full ${
+            isToday ? "bg-primary text-on-primary" : inMonth ? "text-on-surface" : "text-outline"
+          }`;
+
           return (
-            <div key={i} className={`min-h-[92px] border-b border-r border-solid border-outline-variant/30 p-1.5 ${inMonth ? "" : "bg-surface-container-low/40"}`}>
-              <div className={`text-xs font-semibold mb-1 w-6 h-6 flex items-center justify-center rounded-full ${isToday ? "bg-primary text-on-primary" : inMonth ? "text-on-surface" : "text-outline"}`}>
-                {day.getDate()}
-              </div>
-              <div className="flex flex-col gap-1">
-                {dayItems.slice(0, 3).map((e) => (
-                  <button key={e.id} onClick={() => onPick(e)} className="w-full text-left text-[11px] leading-tight px-1.5 py-1 rounded-md truncate" style={{ background: e.color.bg, color: e.color.text }}>
-                    <span className="font-semibold">{fmtTime(e.start)}</span> {e.title}
-                  </button>
-                ))}
-                {dayItems.length > 3 && <span className="text-[10px] text-on-surface-variant pl-1">+{dayItems.length - 3} more</span>}
+            <div key={i} className={`min-h-[92px] border-b border-r border-solid border-outline-variant/30 ${inMonth ? "" : "bg-surface-container-low/40"}`}>
+              {/* Mobile: cells are too narrow for readable chips — show dots and
+                  let the whole cell open the day's agenda. */}
+              <button
+                onClick={() => dayItems.length && onDay(day)}
+                disabled={!dayItems.length}
+                aria-label={`${day.toDateString()} — ${dayItems.length} item${dayItems.length === 1 ? "" : "s"}`}
+                className="md:hidden w-full min-h-[92px] p-1.5 flex flex-col items-center gap-1 disabled:cursor-default"
+                style={{ background: "none" }}
+              >
+                <span className={num}>{day.getDate()}</span>
+                <span className="flex flex-wrap justify-center gap-1 px-0.5">
+                  {dayItems.slice(0, 4).map((e) => (
+                    <i key={e.id} className="w-1.5 h-1.5 rounded-full" style={{ background: e.color.dot }} />
+                  ))}
+                </span>
+                {dayItems.length > 4 && (
+                  <span className="text-[9px] text-on-surface-variant leading-none">+{dayItems.length - 4}</span>
+                )}
+              </button>
+
+              {/* Desktop: chips, with the overflow count opening the same agenda. */}
+              <div className="hidden md:block p-1.5">
+                <div className={`${num} mb-1`}>{day.getDate()}</div>
+                <div className="flex flex-col gap-1">
+                  {dayItems.slice(0, 3).map((e) => (
+                    <button key={e.id} onClick={() => onPick(e)} className="w-full text-left text-[11px] leading-tight px-1.5 py-1 rounded-md truncate" style={{ background: e.color.bg, color: e.color.text }}>
+                      <span className="font-semibold">{fmtTime(e.start)}</span> {e.title}
+                    </button>
+                  ))}
+                  {dayItems.length > 3 && (
+                    <button
+                      onClick={() => onDay(day)}
+                      className="text-[10px] font-semibold text-on-surface-variant hover:text-primary text-left pl-1 py-0.5 rounded"
+                      style={{ background: "none" }}
+                    >
+                      +{dayItems.length - 3} more
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+/* ---- All items for one day (reachable from a month cell) ---- */
+function DayAgenda({ day, items, onPick, onClose }) {
+  return (
+    <div className="fixed inset-0 z-[60] bg-on-background/40 flex items-end md:items-center justify-center p-0 md:p-6" onClick={onClose}>
+      <div
+        className="bg-surface-container-lowest w-full md:max-w-md rounded-t-2xl md:rounded-2xl ambient-shadow p-6 pb-10 md:pb-6 max-h-[85vh] md:max-h-[80vh] overflow-y-auto overscroll-contain"
+        onClick={(ev) => ev.stopPropagation()}
+      >
+        <div className="flex items-start justify-between mb-1 gap-3">
+          <h3 className="text-xl font-bold text-primary">
+            {day.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" })}
+          </h3>
+          <button onClick={onClose} aria-label="Close" className="text-on-surface-variant hover:bg-surface-variant rounded-full p-2 active:scale-95 shrink-0">
+            <Icon name="close" />
+          </button>
+        </div>
+        <p className="text-sm text-on-surface-variant mb-5">
+          {items.length} {items.length === 1 ? "item" : "items"} · tap one for details
+        </p>
+
+        <div className="flex flex-col gap-1.5">
+          {items.map((e) => (
+            <button
+              key={e.id}
+              onClick={() => onPick(e)}
+              className="w-full text-left rounded-lg px-3 py-2 flex items-center gap-2.5 border border-solid active:scale-[0.99] transition-transform"
+              style={{ background: e.color.bg, borderColor: e.color.border, color: e.color.text }}
+            >
+              <i className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: e.color.dot }} />
+              <span className="min-w-0 flex-1">
+                <span className="flex items-baseline justify-between gap-2">
+                  <span className="text-sm font-semibold">
+                    {e.kind === "visitor" ? fmtTime(e.start) : `${fmtTime(e.start)} – ${fmtTime(e.end)}`}
+                  </span>
+                  <span className="text-[10px] font-semibold tracking-wide uppercase shrink-0 opacity-80">
+                    {e.kind === "visitor" ? "Check-in" : `Room ${e.room}`}
+                  </span>
+                </span>
+                <span className="block text-xs truncate opacity-90">{e.title}</span>
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -247,7 +340,7 @@ function TimeGrid({ days, items, onPick }) {
 function ItemDetail({ e, onClose }) {
   const visitor = e.kind === "visitor";
   return (
-    <div className="fixed inset-0 z-[60] bg-on-background/40 flex items-end md:items-center justify-center p-0 md:p-6" onClick={onClose}>
+    <div className="fixed inset-0 z-[65] bg-on-background/40 flex items-end md:items-center justify-center p-0 md:p-6" onClick={onClose}>
       <div className="bg-surface-container-lowest w-full md:max-w-md rounded-t-2xl md:rounded-2xl ambient-shadow p-6" onClick={(ev) => ev.stopPropagation()}>
         <div className="flex items-start justify-between mb-2">
           <span className="text-xs font-bold tracking-wide uppercase px-2.5 py-1 rounded-full" style={{ background: e.color.bg, color: e.color.text }}>
