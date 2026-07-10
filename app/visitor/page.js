@@ -69,7 +69,7 @@ function Flag({ code }) {
   );
 }
 
-function LangSwitch({ className = "" }) {
+function LangSwitch({ className = "", flagsOnly = false }) {
   const { lang, setLang } = useI18n();
   return (
     <div
@@ -80,14 +80,17 @@ function LangSwitch({ className = "" }) {
           key={l}
           type="button"
           onClick={() => setLang(l)}
-          className={`px-2.5 flex items-center gap-1.5 uppercase transition-colors ${
+          aria-label={l.toUpperCase()}
+          className={`px-2.5 flex items-center uppercase transition-colors ${
+            flagsOnly ? "" : "gap-1.5"
+          } ${
             lang === l
               ? "bg-secondary-container text-on-secondary-container"
               : "text-on-surface-variant"
           }`}
         >
           <Flag code={l} />
-          {l}
+          {!flagsOnly && l}
         </button>
       ))}
     </div>
@@ -226,7 +229,7 @@ function Gate({ onDone }) {
         >
           <Icon name="arrow_back" />
         </a>
-        <Logo size={24} />
+        <Logo size={48} />
       </div>
       <form
         onSubmit={submit}
@@ -376,7 +379,7 @@ function Board() {
       {/* Sidebar (web) */}
       <header className="hidden md:flex flex-col w-64 bg-surface-container-low border-r border-solid border-outline-variant h-screen fixed left-0 top-0 z-40">
         <div className="px-6 py-8 flex items-center gap-3">
-          <Logo size={28} />
+          <Logo size={56} />
           <h1 className="text-xl font-bold text-primary">{t("appTitle")}</h1>
         </div>
         <nav className="flex-1 flex flex-col gap-2 px-4 py-4">
@@ -413,17 +416,11 @@ function Board() {
             <a href="/" className="text-on-surface-variant p-2 rounded-lg active:scale-95">
               <Icon name="arrow_back" />
             </a>
-            <Logo size={24} />
+            <Logo size={72} />
           </div>
           <div className="flex items-center gap-[5px]">
-            <LangSwitch />
+            <LangSwitch flagsOnly />
             <SupportButton nav t={t} />
-            <button
-              onClick={() => setView("alerts")}
-              className="text-on-surface-variant p-2 rounded-lg active:scale-95"
-            >
-              <Icon name="notifications" filled={permission === "granted"} />
-            </button>
           </div>
         </div>
       </header>
@@ -481,13 +478,13 @@ function Board() {
             <button
               key={n.key}
               onClick={() => nav(n.key)}
-              style={{ padding: "5px", background: "none" }}
-              className={`flex flex-col items-center justify-center active:scale-90 transition-colors ${
+              aria-label={t(n.label)}
+              style={{ padding: "10px", background: "none" }}
+              className={`flex items-center justify-center active:scale-90 transition-colors ${
                 active ? "text-on-secondary-container" : "text-on-surface-variant"
               }`}
             >
               <Icon name={n.icon} filled={active} />
-              <span className="text-[11px] font-semibold mt-1">{t(n.label)}</span>
             </button>
           );
         })}

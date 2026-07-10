@@ -4,7 +4,6 @@ import { useEffect, useState, useCallback } from "react";
 import { createPortal } from "react-dom";
 import InstallButton from "../InstallButton";
 import Logo from "../Logo";
-import SupportButton from "../SupportButton";
 import { setLogo, useLogo } from "@/lib/logoClient";
 import Calendar from "./Calendar";
 
@@ -81,15 +80,12 @@ function Login({ onLogin }) {
           <Icon name="arrow_back" />
         </a>
       </div>
-      <div className="absolute top-4 right-4">
-        <SupportButton nav />
-      </div>
       <form
         onSubmit={submit}
         className="w-full max-w-md bg-surface-container-lowest rounded-2xl ambient-shadow p-8"
       >
         <div className="flex items-center gap-3 mb-8">
-          <Logo size={32} />
+          <Logo size={64} />
         </div>
 
         <h2 className="text-2xl font-bold text-primary mb-1">Admin sign in</h2>
@@ -172,7 +168,7 @@ function Dashboard({ onLogout }) {
       {/* SideNav (desktop) */}
       <nav className="hidden md:flex flex-col h-screen w-80 rounded-r-xl bg-surface-container-low shadow-lg py-6 sticky top-0 left-0 z-40">
         <div className="px-6 mb-8 flex items-center gap-3">
-          <Logo size={32} />
+          <Logo size={64} />
         </div>
         <div className="px-6 mb-8 flex items-center gap-4">
           <div className="w-12 h-12 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center">
@@ -204,9 +200,6 @@ function Dashboard({ onLogout }) {
           })}
         </ul>
         <div className="px-4 mt-auto flex flex-col">
-          <div className="m-2">
-            <SupportButton row />
-          </div>
           <button
             onClick={logout}
             className="w-full flex items-center gap-3 text-on-surface-variant hover:bg-surface-variant rounded-full m-2 px-4 py-3 transition-all text-left"
@@ -225,14 +218,11 @@ function Dashboard({ onLogout }) {
             <a href="/" className="text-on-surface-variant hover:bg-surface-container-low rounded-full p-2 active:scale-95">
               <Icon name="arrow_back" />
             </a>
-            <Logo size={24} />
+            <Logo size={72} />
           </div>
-          <div className="flex items-center gap-1">
-            <SupportButton nav />
-            <button onClick={logout} className="text-on-surface-variant hover:bg-surface-container-low rounded-full p-2 active:scale-95">
-              <Icon name="logout" />
-            </button>
-          </div>
+          <button onClick={logout} className="bg-transparent text-on-surface-variant hover:bg-surface-container-low rounded-full p-2 active:scale-95">
+            <Icon name="logout" />
+          </button>
         </header>
 
         {/* Slot for the Schedule action card — rendered here (main level) via portal */}
@@ -278,7 +268,7 @@ function Dashboard({ onLogout }) {
               }`}
             >
               <Icon name={n.icon} filled={active} />
-              <span className="text-[11px] font-semibold tracking-wide">{n.label.split(" ")[0]}</span>
+              <span className="text-[10px] font-semibold tracking-wide">{n.label.split(" ")[0]}</span>
             </button>
           );
         })}
@@ -404,7 +394,7 @@ function ScheduleForm({ rooms, onDone }) {
         createPortal(
           <div
             className="bg-surface-container-lowest ambient-shadow p-4 flex items-center justify-between gap-4"
-            style={{ position: "fixed", zIndex: 9999, top: "90px", left: 0, width: "100%" }}
+            style={{ position: "fixed", zIndex: 9999, top: "107px", left: 0, width: "100%" }}
           >
             <p className="text-sm text-on-surface-variant hidden sm:block">
               {valid ? "Ready to publish — everyone gets notified." : "Fill in room, title, date and times to publish."}
@@ -834,7 +824,7 @@ function Visitors() {
         createPortal(
           <div
             className="bg-surface-container-lowest ambient-shadow p-4 flex items-center gap-3"
-            style={{ position: "fixed", zIndex: 9999, top: "90px", left: 0, width: "100%" }}
+            style={{ position: "fixed", zIndex: 9999, top: "107px", left: 0, width: "100%" }}
           >
             <Icon name="calendar_month" className="text-secondary" />
             <input

@@ -2,11 +2,21 @@
 
 import { useState, Fragment } from "react";
 import { useRouter } from "next/navigation";
+import InstallButton from "./InstallButton";
 import Logo from "./Logo";
 import { SupportContacts } from "./SupportButton";
 
 const GREEN = "rgb(0, 138, 0)";
 const PASS_KEY = "cw_visitor_pass";
+
+// White icon buttons matching the Next button's height and corner radius.
+const iconBtn =
+  "h-11 w-11 flex items-center justify-center rounded-lg bg-white text-on-surface-variant active:scale-95 transition-transform";
+
+// The install button holds two brand marks, so it's a wider white pill with a
+// little horizontal padding instead of the square style.
+const installBtn =
+  "h-11 px-2.5 flex items-center justify-center rounded-lg bg-white text-on-surface-variant active:scale-95 transition-transform";
 
 // Visitor is public; Admin is separated below a divider.
 const ROLES = [
@@ -27,9 +37,28 @@ const ROLES = [
 export default function Home() {
   const router = useRouter();
   const [selected, setSelected] = useState("visitor"); // visitor selected by default
+  const [shared, setShared] = useState(false);
 
   function pick(key) {
     setSelected(key);
+  }
+
+  async function shareApp() {
+    const url = window.location.origin;
+    const data = { title: "Coworking Rooms", text: "Live study-room availability", url };
+    try {
+      if (navigator.share) {
+        await navigator.share(data);
+        return;
+      }
+    } catch (e) {
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      setShared(true);
+      setTimeout(() => setShared(false), 1800);
+    } catch (e) {}
   }
 
   function next() {
@@ -61,9 +90,6 @@ export default function Home() {
       <main className="flex-grow p-5 flex flex-col max-w-md mx-auto w-full">
         <section className="mt-6 mb-6 text-center flex flex-col items-center">
           <Logo size={64} className="mb-4" />
-          <h2 className="text-[26px] leading-8 font-bold text-on-surface mb-2 tracking-tight">
-            Coworking Rooms
-          </h2>
           <p className="text-on-surface-variant text-base">Choose how you want to continue</p>
         </section>
 
@@ -106,12 +132,33 @@ export default function Home() {
           })}
         </div>
 
-        {/* Next */}
-        <div className="pb-4 flex justify-end">
+        {/* Actions — Install / Download guide / Share, then Next.
+            Icon buttons share Next's height (h-11) and radius (rounded-lg). */}
+        <div className="pb-4 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5">
+            <InstallButton nav className={installBtn} />
+            <a
+              href="/coworking-rooms-guide.pdf"
+              download
+              aria-label="Download guide"
+              title="Download guide"
+              className={iconBtn}
+            >
+              <span className="material-symbols-outlined !text-[18px]">picture_as_pdf</span>
+            </a>
+            <button
+              onClick={shareApp}
+              aria-label={shared ? "Link copied" : "Share app"}
+              title={shared ? "Link copied" : "Share app"}
+              className={iconBtn}
+            >
+              <span className="material-symbols-outlined !text-[18px]">{shared ? "check" : "share"}</span>
+            </button>
+          </div>
           <button
             onClick={next}
             disabled={!selected}
-            className="text-white px-8 py-3 rounded-lg font-bold text-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="text-white px-6 h-11 rounded-lg font-bold text-base transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             style={{ backgroundColor: GREEN }}
           >
             Next
