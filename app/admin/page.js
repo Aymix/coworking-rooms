@@ -90,7 +90,6 @@ function Login({ onLogin }) {
       >
         <div className="flex items-center gap-3 mb-8">
           <Logo size={32} />
-          <h1 className="text-xl font-bold text-primary">CoWork Hub</h1>
         </div>
 
         <h2 className="text-2xl font-bold text-primary mb-1">Admin sign in</h2>
@@ -174,7 +173,6 @@ function Dashboard({ onLogout }) {
       <nav className="hidden md:flex flex-col h-screen w-80 rounded-r-xl bg-surface-container-low shadow-lg py-6 sticky top-0 left-0 z-40">
         <div className="px-6 mb-8 flex items-center gap-3">
           <Logo size={32} />
-          <h1 className="text-xl font-bold text-primary">CoWork Hub</h1>
         </div>
         <div className="px-6 mb-8 flex items-center gap-4">
           <div className="w-12 h-12 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center">
@@ -229,7 +227,6 @@ function Dashboard({ onLogout }) {
             </a>
             <Logo size={24} />
           </div>
-          <h1 className="text-lg font-bold text-primary">CoWork Hub</h1>
           <div className="flex items-center gap-1">
             <SupportButton nav />
             <button onClick={logout} className="text-on-surface-variant hover:bg-surface-container-low rounded-full p-2 active:scale-95">

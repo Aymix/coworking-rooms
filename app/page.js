@@ -2,7 +2,6 @@
 
 import { useState, Fragment } from "react";
 import { useRouter } from "next/navigation";
-import InstallButton from "./InstallButton";
 import Logo from "./Logo";
 import { SupportContacts } from "./SupportButton";
 
@@ -28,28 +27,9 @@ const ROLES = [
 export default function Home() {
   const router = useRouter();
   const [selected, setSelected] = useState("visitor"); // visitor selected by default
-  const [shared, setShared] = useState(false);
 
   function pick(key) {
     setSelected(key);
-  }
-
-  async function shareApp() {
-    const url = window.location.origin;
-    const data = { title: "Coworking Rooms", text: "Live study-room availability", url };
-    try {
-      if (navigator.share) {
-        await navigator.share(data);
-        return;
-      }
-    } catch (e) {
-      return;
-    }
-    try {
-      await navigator.clipboard.writeText(url);
-      setShared(true);
-      setTimeout(() => setShared(false), 1800);
-    } catch (e) {}
   }
 
   function next() {
@@ -77,33 +57,6 @@ export default function Home() {
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet"
       />
-
-      {/* Top navbar — Logo · Install / Download guide / Share */}
-      <header className="sticky top-0 z-20 bg-surface-container-lowest border-b border-solid border-outline-variant/60">
-        <div className="max-w-md mx-auto px-4 py-2.5 flex items-center justify-between gap-1">
-          <Logo size={26} />
-          <div className="flex items-center gap-1">
-          <InstallButton nav />
-          <a
-            href="/coworking-rooms-guide.pdf"
-            download
-            aria-label="Download guide"
-            title="Download guide"
-            className="text-on-surface-variant hover:bg-surface-container-low rounded-full p-2 active:scale-95 transition-colors"
-          >
-            <span className="material-symbols-outlined !text-[18px]">download</span>
-          </a>
-          <button
-            onClick={shareApp}
-            aria-label={shared ? "Link copied" : "Share app"}
-            title={shared ? "Link copied" : "Share app"}
-            className="text-on-surface-variant hover:bg-surface-container-low rounded-full p-2 active:scale-95 transition-colors"
-          >
-            <span className="material-symbols-outlined !text-[18px]">{shared ? "check" : "share"}</span>
-          </button>
-          </div>
-        </div>
-      </header>
 
       <main className="flex-grow p-5 flex flex-col max-w-md mx-auto w-full">
         <section className="mt-6 mb-6 text-center flex flex-col items-center">
