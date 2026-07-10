@@ -236,11 +236,11 @@ function Gate({ onDone }) {
         className="w-full max-w-md bg-surface-container-lowest rounded-xl border border-solid border-outline-variant/60 shadow-sm p-6 md:p-8"
       >
         <div className="flex items-start justify-between mb-4">
-          <div className="w-12 h-12 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center">
-            <Icon name="waving_hand" filled />
+          <div className="w-9 h-9 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center">
+            <Icon name="waving_hand" filled size={18} />
           </div>
           <div className="flex items-center gap-1">
-            <LangSwitch />
+            <LangSwitch flagsOnly />
             <SupportButton nav t={t} />
           </div>
         </div>

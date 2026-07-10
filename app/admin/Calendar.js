@@ -190,48 +190,24 @@ function MonthView({ cursor, items, onPick, onDay }) {
           }`;
 
           return (
-            <div key={i} className={`min-h-[92px] border-b border-r border-solid border-outline-variant/30 ${inMonth ? "" : "bg-surface-container-low/40"}`}>
-              {/* Mobile: cells are too narrow for readable chips — show dots and
-                  let the whole cell open the day's agenda. */}
-              <button
-                onClick={() => dayItems.length && onDay(day)}
-                disabled={!dayItems.length}
-                aria-label={`${day.toDateString()} — ${dayItems.length} item${dayItems.length === 1 ? "" : "s"}`}
-                className="md:hidden w-full min-h-[92px] p-1.5 flex flex-col items-center gap-1 disabled:cursor-default"
-                style={{ background: "none" }}
-              >
-                <span className={num}>{day.getDate()}</span>
-                <span className="flex flex-wrap justify-center gap-1 px-0.5">
-                  {dayItems.slice(0, 4).map((e) => (
-                    <i key={e.id} className="w-1.5 h-1.5 rounded-full" style={{ background: e.color.dot }} />
-                  ))}
-                </span>
-                {dayItems.length > 4 && (
-                  <span className="text-[9px] text-on-surface-variant leading-none">+{dayItems.length - 4}</span>
-                )}
-              </button>
-
-              {/* Desktop: chips, with the overflow count opening the same agenda. */}
-              <div className="hidden md:block p-1.5">
-                <div className={`${num} mb-1`}>{day.getDate()}</div>
-                <div className="flex flex-col gap-1">
-                  {dayItems.slice(0, 3).map((e) => (
-                    <button key={e.id} onClick={() => onPick(e)} className="w-full text-left text-[11px] leading-tight px-1.5 py-1 rounded-md truncate" style={{ background: e.color.bg, color: e.color.text }}>
-                      <span className="font-semibold">{fmtTime(e.start)}</span> {e.title}
-                    </button>
-                  ))}
-                  {dayItems.length > 3 && (
-                    <button
-                      onClick={() => onDay(day)}
-                      className="text-[10px] font-semibold text-on-surface-variant hover:text-primary text-left pl-1 py-0.5 rounded"
-                      style={{ background: "none" }}
-                    >
-                      +{dayItems.length - 3} more
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
+            // Simple dot per event — no overflow counter. Tap a day to open its
+            // full agenda (every event with its details).
+            <button
+              key={i}
+              onClick={() => dayItems.length && onDay(day)}
+              disabled={!dayItems.length}
+              aria-label={`${day.toDateString()} — ${dayItems.length} item${dayItems.length === 1 ? "" : "s"}`}
+              className={`min-h-[92px] border-b border-r border-solid border-outline-variant/30 p-1.5 flex flex-col items-center gap-1.5 disabled:cursor-default ${
+                inMonth ? "bg-transparent" : "bg-surface-container-low/40"
+              } ${dayItems.length ? "hover:bg-surface-container-low cursor-pointer" : ""}`}
+            >
+              <span className={num}>{day.getDate()}</span>
+              <span className="flex flex-wrap justify-center gap-1 px-0.5">
+                {dayItems.map((e) => (
+                  <i key={e.id} className="w-2 h-2 rounded-full" style={{ background: e.color.dot }} />
+                ))}
+              </span>
+            </button>
           );
         })}
       </div>
