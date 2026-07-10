@@ -3,6 +3,8 @@
 import { useState, Fragment } from "react";
 import { useRouter } from "next/navigation";
 import InstallButton from "./InstallButton";
+import Logo from "./Logo";
+import { SupportContacts } from "./SupportButton";
 
 const GREEN = "rgb(0, 138, 0)";
 const PASS_KEY = "cw_visitor_pass";
@@ -76,9 +78,11 @@ export default function Home() {
         rel="stylesheet"
       />
 
-      {/* Top navbar — Install / Download guide / Share */}
+      {/* Top navbar — Logo · Install / Download guide / Share */}
       <header className="sticky top-0 z-20 bg-surface-container-lowest border-b border-solid border-outline-variant/60">
-        <div className="max-w-md mx-auto px-4 py-2.5 flex items-center justify-end gap-1">
+        <div className="max-w-md mx-auto px-4 py-2.5 flex items-center justify-between gap-1">
+          <Logo size={26} />
+          <div className="flex items-center gap-1">
           <InstallButton nav />
           <a
             href="/coworking-rooms-guide.pdf"
@@ -97,11 +101,13 @@ export default function Home() {
           >
             <span className="material-symbols-outlined !text-[18px]">{shared ? "check" : "share"}</span>
           </button>
+          </div>
         </div>
       </header>
 
       <main className="flex-grow p-5 flex flex-col max-w-md mx-auto w-full">
-        <section className="mt-6 mb-6 text-center">
+        <section className="mt-6 mb-6 text-center flex flex-col items-center">
+          <Logo size={64} className="mb-4" />
           <h2 className="text-[26px] leading-8 font-bold text-on-surface mb-2 tracking-tight">
             Coworking Rooms
           </h2>
@@ -159,6 +165,17 @@ export default function Home() {
           </button>
         </div>
 
+        {/* Support numbers */}
+        <section className="mt-auto pt-6">
+          <div className="flex items-center gap-3 mb-3">
+            <span className="h-px flex-1 bg-outline-variant/60" />
+            <span className="text-[11px] font-semibold tracking-wider uppercase text-on-surface-variant">
+              Support
+            </span>
+            <span className="h-px flex-1 bg-outline-variant/60" />
+          </div>
+          <SupportContacts />
+        </section>
       </main>
     </div>
   );

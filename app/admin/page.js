@@ -3,6 +3,9 @@
 import { useEffect, useState, useCallback } from "react";
 import { createPortal } from "react-dom";
 import InstallButton from "../InstallButton";
+import Logo from "../Logo";
+import SupportButton from "../SupportButton";
+import { setLogo, useLogo } from "@/lib/logoClient";
 import Calendar from "./Calendar";
 
 function Icon({ name, filled, size, className = "" }) {
@@ -69,19 +72,24 @@ function Login({ onLogin }) {
 
   return (
     <div className="relative min-h-screen bg-background text-on-surface font-sans flex items-center justify-center px-5">
-      <a
-        href="/"
-        aria-label="Back"
-        className="absolute top-4 left-4 text-on-surface-variant hover:bg-surface-container-low rounded-full p-2 active:scale-95 transition-colors"
-      >
-        <Icon name="arrow_back" />
-      </a>
+      <div className="absolute top-4 left-4 flex items-center gap-1">
+        <a
+          href="/"
+          aria-label="Back"
+          className="text-on-surface-variant hover:bg-surface-container-low rounded-full p-2 active:scale-95 transition-colors"
+        >
+          <Icon name="arrow_back" />
+        </a>
+      </div>
+      <div className="absolute top-4 right-4">
+        <SupportButton nav />
+      </div>
       <form
         onSubmit={submit}
         className="w-full max-w-md bg-surface-container-lowest rounded-2xl ambient-shadow p-8"
       >
         <div className="flex items-center gap-3 mb-8">
-          <Icon name="domain" filled size={32} className="text-primary" />
+          <Logo size={32} />
           <h1 className="text-xl font-bold text-primary">CoWork Hub</h1>
         </div>
 
@@ -127,6 +135,7 @@ const NAV = [
   { key: "calendar", label: "Calendar", icon: "calendar_month" },
   { key: "bookings", label: "Bookings", icon: "bookmark" },
   { key: "visitors", label: "Visitors", icon: "groups" },
+  { key: "settings", label: "Settings", icon: "settings" },
 ];
 
 function Dashboard({ onLogout }) {
@@ -164,7 +173,7 @@ function Dashboard({ onLogout }) {
       {/* SideNav (desktop) */}
       <nav className="hidden md:flex flex-col h-screen w-80 rounded-r-xl bg-surface-container-low shadow-lg py-6 sticky top-0 left-0 z-40">
         <div className="px-6 mb-8 flex items-center gap-3">
-          <Icon name="domain" filled size={32} className="text-primary" />
+          <Logo size={32} />
           <h1 className="text-xl font-bold text-primary">CoWork Hub</h1>
         </div>
         <div className="px-6 mb-8 flex items-center gap-4">
@@ -196,7 +205,10 @@ function Dashboard({ onLogout }) {
             );
           })}
         </ul>
-        <div className="px-4 mt-auto">
+        <div className="px-4 mt-auto flex flex-col">
+          <div className="m-2">
+            <SupportButton row />
+          </div>
           <button
             onClick={logout}
             className="w-full flex items-center gap-3 text-on-surface-variant hover:bg-surface-variant rounded-full m-2 px-4 py-3 transition-all text-left"
@@ -210,14 +222,20 @@ function Dashboard({ onLogout }) {
       {/* Main */}
       <main className="flex-1 flex flex-col min-w-0">
         {/* TopAppBar (mobile) */}
-        <header className="md:hidden w-full top-0 sticky bg-surface border-b border-solid border-outline-variant shadow-sm z-50 flex justify-between items-center px-5 py-4">
-          <a href="/" className="text-on-surface-variant hover:bg-surface-container-low rounded-full p-2 active:scale-95">
-            <Icon name="arrow_back" />
-          </a>
-          <h1 className="text-xl font-bold text-primary">CoWork Hub</h1>
-          <button onClick={logout} className="text-on-surface-variant hover:bg-surface-container-low rounded-full p-2 active:scale-95">
-            <Icon name="logout" />
-          </button>
+        <header className="md:hidden w-full top-0 sticky bg-surface border-b border-solid border-outline-variant shadow-sm z-50 flex justify-between items-center px-3 py-4">
+          <div className="flex items-center gap-1">
+            <a href="/" className="text-on-surface-variant hover:bg-surface-container-low rounded-full p-2 active:scale-95">
+              <Icon name="arrow_back" />
+            </a>
+            <Logo size={24} />
+          </div>
+          <h1 className="text-lg font-bold text-primary">CoWork Hub</h1>
+          <div className="flex items-center gap-1">
+            <SupportButton nav />
+            <button onClick={logout} className="text-on-surface-variant hover:bg-surface-container-low rounded-full p-2 active:scale-95">
+              <Icon name="logout" />
+            </button>
+          </div>
         </header>
 
         {/* Slot for the Schedule action card — rendered here (main level) via portal */}
@@ -245,6 +263,7 @@ function Dashboard({ onLogout }) {
           {tab === "calendar" && <Calendar />}
           {tab === "bookings" && <Bookings rooms={rooms} onEnd={endEvent} />}
           {tab === "visitors" && <Visitors />}
+          {tab === "settings" && <Settings onDone={setMsg} />}
         </div>
       </main>
 
@@ -597,6 +616,163 @@ function Bookings({ rooms, onEnd }) {
             </div>
           );
         })}
+      </div>
+    </>
+  );
+}
+
+/* ---------------- Settings ---------------- */
+const LOGO_TYPES = ["image/png", "image/jpeg", "image/webp", "image/svg+xml"];
+// Base64 inflates by ~4/3, so this stays under the API's encoded-length ceiling.
+const LOGO_MAX_BYTES = 250 * 1024;
+
+function Settings({ onDone }) {
+  const current = useLogo();
+  const [draft, setDraft] = useState(null); // a picked file, not saved yet
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+
+  const shown = draft ?? (current || "");
+  const loading = current === undefined && draft === null;
+
+  function pick(e) {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // so picking the same file twice still fires onChange
+    if (!file) return;
+    setErr("");
+
+    if (!LOGO_TYPES.includes(file.type)) {
+      setErr("Use a PNG, JPEG, WebP or SVG image.");
+      return;
+    }
+    if (file.size > LOGO_MAX_BYTES) {
+      setErr("That image is over 250 KB — pick a smaller one.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => setDraft(String(reader.result));
+    reader.onerror = () => setErr("Could not read that file.");
+    reader.readAsDataURL(file);
+  }
+
+  async function save(next) {
+    setBusy(true);
+    setErr("");
+    let data = {};
+    try {
+      const res = await fetch("/api/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ logo: next }),
+      });
+      data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error);
+    } catch (e) {
+      setBusy(false);
+      setErr(e.message || "Could not save the logo.");
+      return;
+    }
+    setBusy(false);
+    setLogo(next); // repaint every navbar on this device straight away
+    setDraft(null);
+    onDone({
+      type: "ok",
+      text: next ? "Logo updated — it now shows on every screen." : "Logo removed.",
+    });
+  }
+
+  const capsLabel = "block text-xs font-semibold tracking-wider uppercase text-on-surface-variant";
+
+  return (
+    <>
+      <div className="mb-6">
+        <h2 className="text-2xl md:text-3xl font-bold text-primary mb-2 tracking-tight">Settings</h2>
+        <p className="text-base text-on-surface-variant">
+          Branding and app-wide preferences.
+        </p>
+      </div>
+
+      <div className="bg-surface-container-lowest rounded-2xl ambient-shadow p-6 flex flex-col gap-6">
+        <div>
+          <label className={`${capsLabel} mb-2 flex items-center gap-2`}>
+            <Icon name="image" size={16} /> Logo
+          </label>
+          <p className="text-sm text-on-surface-variant">
+            Shown in the navbar on every screen. PNG, JPEG, WebP or SVG, up to 250 KB.
+          </p>
+        </div>
+
+        {/* Preview */}
+        <div className="rounded-xl border border-dashed border-outline-variant bg-surface-container-low h-32 flex items-center justify-center p-4">
+          {loading ? (
+            <span className="text-sm text-on-surface-variant">Loading…</span>
+          ) : shown ? (
+            <img src={shown} alt="Logo preview" className="max-h-full max-w-[240px] w-auto object-contain" />
+          ) : (
+            <span className="flex flex-col items-center gap-1 text-on-surface-variant">
+              <Icon name="domain" filled size={32} />
+              <span className="text-xs">No logo yet — the default mark is used.</span>
+            </span>
+          )}
+        </div>
+
+        {draft && (
+          <p className="text-sm text-secondary font-medium -mt-3">
+            Preview only — save to publish it.
+          </p>
+        )}
+        {err && <p className="text-sm text-error -mt-3">{err}</p>}
+
+        <div className="flex items-center gap-3 flex-wrap">
+          <label className="text-xs font-semibold tracking-wider uppercase px-6 py-3 rounded-xl bg-surface-container-high text-primary hover:bg-opacity-80 transition-all active:scale-95 flex items-center gap-2 cursor-pointer">
+            <Icon name="upload" size={18} />
+            Choose image
+            <input
+              type="file"
+              accept={LOGO_TYPES.join(",")}
+              onChange={pick}
+              disabled={busy}
+              className="hidden"
+            />
+          </label>
+
+          <button
+            type="button"
+            onClick={() => save(draft)}
+            disabled={!draft || busy}
+            className="text-xs font-semibold tracking-wider uppercase px-8 py-3 rounded-xl bg-primary text-on-primary hover:bg-opacity-90 transition-all active:scale-95 shadow-md flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100"
+          >
+            <Icon name="save" size={18} />
+            {busy ? "Saving…" : "Save logo"}
+          </button>
+
+          {draft && (
+            <button
+              type="button"
+              onClick={() => {
+                setDraft(null);
+                setErr("");
+              }}
+              disabled={busy}
+              className="text-xs font-semibold tracking-wider uppercase px-6 py-3 rounded-xl text-outline hover:text-primary transition-colors"
+            >
+              Cancel
+            </button>
+          )}
+
+          {!draft && current && (
+            <button
+              type="button"
+              onClick={() => save("")}
+              disabled={busy}
+              className="text-xs font-semibold tracking-wider uppercase px-6 py-3 rounded-xl bg-error-container text-on-error-container hover:bg-opacity-80 transition-all active:scale-95 flex items-center gap-2 ml-auto disabled:opacity-50"
+            >
+              <Icon name="delete" size={18} />
+              Remove
+            </button>
+          )}
+        </div>
       </div>
     </>
   );

@@ -15,6 +15,8 @@ import {
 import { STRINGS } from "@/lib/visitorI18n";
 import FloorMap from "./FloorMap";
 import InstallButton from "../InstallButton";
+import Logo from "../Logo";
+import SupportButton from "../SupportButton";
 
 const PASS_KEY = "cw_visitor_pass";
 const LANG_KEY = "cw_lang";
@@ -216,13 +218,16 @@ function Gate({ onDone }) {
 
   return (
     <div className="relative min-h-screen bg-background text-on-background font-sans flex items-center justify-center px-5">
-      <a
-        href="/"
-        aria-label="Back"
-        className="absolute top-4 left-4 text-on-surface-variant hover:bg-surface-container-low rounded-full p-2 active:scale-95 transition-colors"
-      >
-        <Icon name="arrow_back" />
-      </a>
+      <div className="absolute top-4 left-4 flex items-center gap-1">
+        <a
+          href="/"
+          aria-label="Back"
+          className="text-on-surface-variant hover:bg-surface-container-low rounded-full p-2 active:scale-95 transition-colors"
+        >
+          <Icon name="arrow_back" />
+        </a>
+        <Logo size={24} />
+      </div>
       <form
         onSubmit={submit}
         className="w-full max-w-md bg-surface-container-lowest rounded-xl border border-solid border-outline-variant/60 shadow-sm p-6 md:p-8"
@@ -231,7 +236,10 @@ function Gate({ onDone }) {
           <div className="w-12 h-12 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center">
             <Icon name="waving_hand" filled />
           </div>
-          <LangSwitch />
+          <div className="flex items-center gap-1">
+            <LangSwitch />
+            <SupportButton nav t={t} />
+          </div>
         </div>
         <h1 className="text-2xl font-bold text-primary mb-1">{t("gateTitle")}</h1>
         <p className="text-sm text-on-surface-variant mb-6">{t("gateDesc")}</p>
@@ -367,7 +375,8 @@ function Board() {
     <div className="min-h-screen bg-background text-on-background font-sans flex flex-col md:flex-row">
       {/* Sidebar (web) */}
       <header className="hidden md:flex flex-col w-64 bg-surface-container-low border-r border-solid border-outline-variant h-screen fixed left-0 top-0 z-40">
-        <div className="px-6 py-8 flex items-center justify-between">
+        <div className="px-6 py-8 flex items-center gap-3">
+          <Logo size={28} />
           <h1 className="text-xl font-bold text-primary">{t("appTitle")}</h1>
         </div>
         <nav className="flex-1 flex flex-col gap-2 px-4 py-4">
@@ -389,6 +398,9 @@ function Board() {
             );
           })}
         </nav>
+        <div className="px-4 pb-2">
+          <SupportButton row t={t} />
+        </div>
         <div className="px-6 pb-6">
           <LangSwitch />
         </div>
@@ -397,11 +409,15 @@ function Board() {
       {/* Top bar (mobile) */}
       <header className="w-full top-0 sticky bg-surface border-b border-solid border-outline-variant md:hidden z-40">
         <div className="flex justify-between items-center px-4 py-4 w-full">
-          <a href="/" className="text-on-surface-variant p-2 rounded-lg active:scale-95">
-            <Icon name="arrow_back" />
-          </a>
+          <div className="flex items-center gap-1">
+            <a href="/" className="text-on-surface-variant p-2 rounded-lg active:scale-95">
+              <Icon name="arrow_back" />
+            </a>
+            <Logo size={24} />
+          </div>
           <div className="flex items-center gap-[5px]">
             <LangSwitch />
+            <SupportButton nav t={t} />
             <button
               onClick={() => setView("alerts")}
               className="text-on-surface-variant p-2 rounded-lg active:scale-95"
